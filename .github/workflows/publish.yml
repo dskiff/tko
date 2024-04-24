@@ -1,0 +1,40 @@
+name: publish
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8459bc0c7e3759cdf591f513d9f141a95fef0a8f
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe
+
+      - name: Run GoReleaser (build)
+        uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8 # v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: build --snapshot
+
+      - name: Get tko
+        run: |
+          wget https://github.com/dskiff/tko/releases/download/0.0.1/tko_Linux_x86_64.tar.gz
+          tar -xvf tko_Linux_x86_64.tar.gz
+          mv tko /usr/local/bin/tko
+      
+      - name: Publish
+        run: |
+          tko "./dist/tko_linux_amd64_v1"
+        env:
+          TKO_TARGET_REPO: "ghcr.io/dskiff/tko:main" 
+          TKO_TARGET_TYPE: "LOCAL_DAEMON"
+          TKO_ENTRYPOINT: "/tko-app/tko"
