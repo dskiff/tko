@@ -38,5 +38,5 @@ jobs:
         env:
           TKO_BASE_IMAGE: "scratch"
           TKO_DEST_PATH: "/usr/local/bin"
-          TKO_TARGET_REPO: "ghcr.io/dskiff/tko:main" 
+          TKO_TARGET_REPO: "ghcr.io/dskiff/tko:latest" 
           GITHUB_TOKEN: ${{ github.token }}
