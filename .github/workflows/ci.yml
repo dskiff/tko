@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@8459bc0c7e3759cdf591f513d9f141a95fef0a8f
 
       - name: Setup Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
 
       - name: Run GoReleaser (build)
         uses: goreleaser/goreleaser-action@v5
