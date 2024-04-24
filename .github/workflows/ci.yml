@@ -13,8 +13,12 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
 
-      - name: Build
-        run: go build -ldflags "-X main.Version=CI" -v .
+      - name: Run GoReleaser (build)
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: build
 
       - name: Test
         run: go test -v ./...
