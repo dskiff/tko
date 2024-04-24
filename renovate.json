@@ -6,5 +6,12 @@
   "postUpdateOptions": [
     "gomodTidy",
     "gomodUpdateImportPaths"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["digest"],
+      "automerge": true,
+      "autoApprove": true
+    }
   ]
 }
