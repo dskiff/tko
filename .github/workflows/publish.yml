@@ -6,6 +6,7 @@ on:
       - main
 
 permissions:
+  contents: read
   packages: write
 
 jobs:
@@ -38,3 +39,4 @@ jobs:
           TKO_BASE_IMAGE: "scratch"
           TKO_DEST_PATH: "/usr/local/bin"
           TKO_TARGET_REPO: "ghcr.io/dskiff/tko:main" 
+          TKO_LOG_LEVEL: "debug"

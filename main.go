@@ -9,6 +9,7 @@ import (
 	"github.com/dskiff/tko/pkg/build"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/authn/github"
+	"github.com/google/go-containerregistry/pkg/logs"
 	"github.com/google/go-containerregistry/pkg/v1/google"
 
 	"github.com/joho/godotenv"
@@ -33,6 +34,7 @@ func main() {
 	TKO_ENTRYPOINT := os.Getenv("TKO_ENTRYPOINT")
 	TKO_TEMP_PATH := os.Getenv("TKO_TEMP_PATH")
 	TKO_TARGET_TYPE := os.Getenv("TKO_TARGET_TYPE")
+	TKO_LOG_LEVEL := os.Getenv("TKO_LOG_LEVEL")
 
 	if TKO_BASE_IMAGE == "" {
 		TKO_BASE_IMAGE = "cgr.dev/chainguard/static:latest"
@@ -42,6 +44,9 @@ func main() {
 	}
 	if TKO_ENTRYPOINT == "" {
 		TKO_ENTRYPOINT = "/tko-app/app"
+	}
+	if TKO_LOG_LEVEL == "" {
+		TKO_LOG_LEVEL = "info"
 	}
 
 	var targetType build.TargetType
@@ -70,6 +75,12 @@ func main() {
 		google.Keychain,
 		github.Keychain,
 	)
+
+	logs.Warn.SetOutput(os.Stderr)
+	logs.Progress.SetOutput(os.Stderr)
+	if TKO_LOG_LEVEL == "debug" {
+		logs.Debug.SetOutput(os.Stderr)
+	}
 
 	log.Println("TKO_TARGET_REPO:", TKO_TARGET_REPO)
 	log.Println("TKO_BASE_IMAGE:", TKO_BASE_IMAGE)
