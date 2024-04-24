@@ -11,7 +11,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var Version = "dev"
+
 func main() {
+	log.Println("TKO version:", Version)
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
