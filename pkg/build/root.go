@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
+	"github.com/google/go-containerregistry/pkg/v1/empty"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
@@ -41,17 +42,7 @@ func Run(ctx context.Context, cfg RunConfig) error {
 		return fmt.Errorf("failed to parse target repo: %w", err)
 	}
 
-	baseRef, baseIndex, err := fetchImageIndex(ctx, cfg.BaseImage)
-	if err != nil {
-		return fmt.Errorf("failed to retrieve base image index: %w", err)
-	}
-	baseDigest, err := baseIndex.Digest()
-	if err != nil {
-		return fmt.Errorf("failed to retrieve base image digest: %w", err)
-	}
-	log.Println("Using base image:", baseRef.Name()+"@"+baseDigest.String())
-
-	baseImage, err := getImageForPlatform(baseIndex, cfg.PlatformArch, cfg.PlatformOs)
+	baseImage, err := getBaseImage(ctx, cfg.BaseImage, cfg)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve base image: %w", err)
 	}
@@ -95,6 +86,24 @@ func Run(ctx context.Context, cfg RunConfig) error {
 	}
 
 	return nil
+}
+
+func getBaseImage(ctx context.Context, baseName string, cfg RunConfig) (v1.Image, error) {
+	if baseName == "scratch" {
+		return empty.Image, nil
+	}
+
+	baseRef, baseIndex, err := fetchImageIndex(ctx, baseName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve base image index: %w", err)
+	}
+	baseDigest, err := baseIndex.Digest()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve base image digest: %w", err)
+	}
+	log.Println("Using base image:", baseRef.Name()+"@"+baseDigest.String())
+
+	return getImageForPlatform(baseIndex, cfg.PlatformArch, cfg.PlatformOs)
 }
 
 func fetchImageIndex(ctx context.Context, src string) (name.Reference, v1.ImageIndex, error) {
