@@ -11,10 +11,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var Version = "dev"
+var version = "dev"
+var commit = "none"
+var date = "unknown"
 
 func main() {
-	log.Println("TKO version:", Version)
+	log.Printf("tko %s (%s) built on %s\n", version, commit, date)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
