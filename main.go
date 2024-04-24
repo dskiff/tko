@@ -23,6 +23,7 @@ func main() {
 	TKO_DEST_PATH := os.Getenv("TKO_DEST_PATH")
 	TKO_ENTRYPOINT := os.Getenv("TKO_ENTRYPOINT")
 	TKO_TEMP_PATH := os.Getenv("TKO_TEMP_PATH")
+	TKO_TARGET_TYPE := os.Getenv("TKO_TARGET_TYPE")
 
 	if TKO_BASE_IMAGE == "" {
 		TKO_BASE_IMAGE = "cgr.dev/chainguard/static:latest"
@@ -32,6 +33,18 @@ func main() {
 	}
 	if TKO_ENTRYPOINT == "" {
 		TKO_ENTRYPOINT = "/tko-app/app"
+	}
+
+	var targetType build.TargetType
+	switch TKO_TARGET_TYPE {
+	case "REMOTE":
+		targetType = build.REMOTE
+	case "LOCAL_DAEMON":
+		targetType = build.LOCAL_DAEMON
+	case "":
+		targetType = build.REMOTE
+	default:
+		log.Fatalf("Invalid TKO_TARGET_TYPE: %s", TKO_TARGET_TYPE)
 	}
 
 	// TODO: Better command line parsing
@@ -54,13 +67,14 @@ func main() {
 	exitCleanWatcher := build.NewExitCleanupWatcher()
 	defer exitCleanWatcher.Close()
 
-	build.Run(ctx, build.RunConfig{
+	err := build.Run(ctx, build.RunConfig{
 		SrcPath:    srcPath,
 		DstPath:    TKO_DEST_PATH,
 		Entrypoint: TKO_ENTRYPOINT,
 
 		BaseImage:  TKO_BASE_IMAGE,
 		TargetRepo: TKO_TARGET_REPO,
+		TargetType: targetType,
 
 		PlatformOs:   "linux",
 		PlatformArch: "amd64",
@@ -68,4 +82,9 @@ func main() {
 		TempPath:           TKO_TEMP_PATH,
 		ExitCleanupWatcher: exitCleanWatcher,
 	})
+	if err != nil {
+		log.Println(err)
+		exitCleanWatcher.Close()
+		os.Exit(1)
+	}
 }

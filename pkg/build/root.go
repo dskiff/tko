@@ -2,7 +2,7 @@ package build
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"log"
 
 	"github.com/google/go-containerregistry/pkg/name"
@@ -12,6 +12,13 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
+type TargetType int
+
+const (
+	REMOTE TargetType = iota
+	LOCAL_DAEMON
+)
+
 type RunConfig struct {
 	SrcPath    string
 	DstPath    string
@@ -19,6 +26,7 @@ type RunConfig struct {
 
 	BaseImage  string
 	TargetRepo string
+	TargetType TargetType
 
 	PlatformOs   string
 	PlatformArch string
@@ -28,70 +36,65 @@ type RunConfig struct {
 }
 
 func Run(ctx context.Context, cfg RunConfig) error {
+	tag, err := name.NewTag(cfg.TargetRepo)
+	if err != nil {
+		return fmt.Errorf("failed to parse target repo: %w", err)
+	}
+
 	baseRef, baseIndex, err := fetchImageIndex(ctx, cfg.BaseImage)
 	if err != nil {
-		log.Fatalln("failed to retrieve base image index:", err)
+		return fmt.Errorf("failed to retrieve base image index: %w", err)
 	}
 	baseDigest, err := baseIndex.Digest()
 	if err != nil {
-		log.Fatalln("failed to retrieve base image digest:", err)
+		return fmt.Errorf("failed to retrieve base image digest: %w", err)
 	}
 	log.Println("Using base image:", baseRef.Name()+"@"+baseDigest.String())
 
 	baseImage, err := getImageForPlatform(baseIndex, cfg.PlatformArch, cfg.PlatformOs)
 	if err != nil {
-		log.Fatalln("failed to retrieve base image:", err)
+		return fmt.Errorf("failed to retrieve base image: %w", err)
 	}
 
 	newLayer, err := createLayerFromFolder(cfg.SrcPath, cfg.DstPath, cfg)
 	if err != nil {
-		log.Fatalln("failed to create layer from source:", err)
+		return fmt.Errorf("failed to create layer from source: %w", err)
 	}
 
 	newImage, err := mutate.AppendLayers(baseImage, newLayer)
 	if err != nil {
-		log.Fatalln("failed to append layer to base image:", err)
+		return fmt.Errorf("failed to append layer to base image: %w", err)
 	}
 
 	newImage, err = mutateConfig(newImage, cfg)
 	if err != nil {
-		log.Fatalln("failed to mutate config:", err)
+		return fmt.Errorf("failed to mutate config: %w", err)
 	}
 
 	newImageDigest, err := newImage.Digest()
 	if err != nil {
-		log.Fatalln("failed to retrieve new image digest:", err)
+		return fmt.Errorf("failed to retrieve new image digest: %w", err)
 	}
 	log.Println("Created new image:", newImageDigest)
 
-	if cfg.TargetRepo == "" {
-		log.Println("TKO_TARGET_REPO is not set. Skipping publish...")
-		return nil
+	switch cfg.TargetType {
+	case REMOTE:
+		log.Println("Publishing to remote...")
+		err := remote.Write(tag, newImage, remote.WithContext(ctx))
+		if err != nil {
+			return fmt.Errorf("failed to write image to remote: %w", err)
+		}
+	case LOCAL_DAEMON:
+		log.Println("Publishing to local daemon...")
+		_, err := daemon.Write(tag, newImage, daemon.WithContext(ctx))
+		if err != nil {
+			return fmt.Errorf("failed to write image to daemon: %w", err)
+		}
+	default:
+		return fmt.Errorf("unknown target type: %d", cfg.TargetType)
 	}
-
-	tag, err := name.NewTag(cfg.TargetRepo)
-	if err != nil {
-		log.Fatalln("failed to parse target repo:", err)
-	}
-	result, err := daemon.Write(tag, newImage, daemon.WithContext(ctx))
-	if err != nil {
-		log.Fatalln("failed to write image to daemon:", err)
-	}
-	log.Println(result)
 
 	return nil
-
-	// p, err := publish.NewDefault(targetRepo, // publish to example.registry/my-repo
-	// 	publish.WithTags([]string{commitSHA}),               // tag with :deadbeef
-	// 	publish.WithAuthFromKeychain(authn.DefaultKeychain)) // use credentials from ~/.docker/config.json
-	// if err != nil {
-	// 	log.Fatalf("NewDefault: %v", err)
-	// }
-	// ref, err := p.Publish(ctx, r, importpath)
-	// if err != nil {
-	// 	log.Fatalf("Publish: %v", err)
-	// }
-	// fmt.Println(ref.String())
 }
 
 func fetchImageIndex(ctx context.Context, src string) (name.Reference, v1.ImageIndex, error) {
@@ -116,7 +119,7 @@ func getDigestForPlatform(index v1.ImageIndex, arch string, os string) (v1.Hash,
 		}
 	}
 
-	return v1.Hash{}, errors.New("platform not found in index")
+	return v1.Hash{}, fmt.Errorf("no manifest found for platform %s/%s", arch, os)
 }
 
 func getImageForPlatform(index v1.ImageIndex, arch string, os string) (v1.Image, error) {
