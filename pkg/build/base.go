@@ -16,7 +16,7 @@ func GetBaseImage(ctx context.Context, baseName string, cfg RunConfig) (v1.Image
 		return empty.Image, nil
 	}
 
-	baseRef, baseIndex, err := fetchImageIndex(ctx, baseName)
+	baseRef, baseIndex, err := fetchImageIndex(ctx, baseName, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve base image index: %w", err)
 	}
@@ -29,12 +29,12 @@ func GetBaseImage(ctx context.Context, baseName string, cfg RunConfig) (v1.Image
 	return getImageForPlatform(baseIndex, cfg.PlatformArch, cfg.PlatformOs)
 }
 
-func fetchImageIndex(ctx context.Context, src string) (name.Reference, v1.ImageIndex, error) {
+func fetchImageIndex(ctx context.Context, src string, cfg RunConfig) (name.Reference, v1.ImageIndex, error) {
 	ref, err := name.ParseReference(src)
 	if err != nil {
 		return nil, nil, err
 	}
-	base, err := remote.Index(ref, remote.WithContext(ctx))
+	base, err := remote.Index(ref, remote.WithContext(ctx), remote.WithAuthFromKeychain(cfg.RemoteKeychain))
 	return ref, base, err
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
@@ -21,9 +22,10 @@ type RunConfig struct {
 	DstPath    string
 	Entrypoint string
 
-	BaseImage  string
-	TargetRepo string
-	TargetType TargetType
+	BaseImage      string
+	TargetRepo     string
+	TargetType     TargetType
+	RemoteKeychain authn.Keychain
 
 	PlatformOs   string
 	PlatformArch string

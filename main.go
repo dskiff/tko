@@ -7,6 +7,9 @@ import (
 	"os/signal"
 
 	"github.com/dskiff/tko/pkg/build"
+	"github.com/google/go-containerregistry/pkg/authn"
+	"github.com/google/go-containerregistry/pkg/authn/github"
+	"github.com/google/go-containerregistry/pkg/v1/google"
 
 	"github.com/joho/godotenv"
 )
@@ -62,6 +65,12 @@ func main() {
 		log.Fatalln("source path is required. Usage: tko <source-path>")
 	}
 
+	keychain := authn.NewMultiKeychain(
+		authn.DefaultKeychain,
+		google.Keychain,
+		github.Keychain,
+	)
+
 	log.Println("TKO_TARGET_REPO:", TKO_TARGET_REPO)
 	log.Println("TKO_BASE_IMAGE:", TKO_BASE_IMAGE)
 	log.Println("TKO_DEST_PATH:", TKO_DEST_PATH)
@@ -78,9 +87,10 @@ func main() {
 		DstPath:    TKO_DEST_PATH,
 		Entrypoint: TKO_ENTRYPOINT,
 
-		BaseImage:  TKO_BASE_IMAGE,
-		TargetRepo: TKO_TARGET_REPO,
-		TargetType: targetType,
+		BaseImage:      TKO_BASE_IMAGE,
+		TargetRepo:     TKO_TARGET_REPO,
+		TargetType:     targetType,
+		RemoteKeychain: keychain,
 
 		PlatformOs:   "linux",
 		PlatformArch: "amd64",

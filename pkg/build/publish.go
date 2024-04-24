@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/google/go-containerregistry/pkg/authn"
-	"github.com/google/go-containerregistry/pkg/authn/github"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
-	"github.com/google/go-containerregistry/pkg/v1/google"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
@@ -26,14 +23,8 @@ func Publish(ctx context.Context, tag name.Tag, image v1.Image, cfg RunConfig) e
 	case REMOTE:
 		log.Println("Publishing to remote...")
 
-		keychain := authn.NewMultiKeychain(
-			authn.DefaultKeychain,
-			google.Keychain,
-			github.Keychain,
-		)
-
 		err := remote.Write(tag, image, remote.WithContext(ctx),
-			remote.WithAuthFromKeychain(keychain))
+			remote.WithAuthFromKeychain(cfg.RemoteKeychain))
 		if err != nil {
 			return fmt.Errorf("failed to write image to remote: %w", err)
 		}
