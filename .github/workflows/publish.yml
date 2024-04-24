@@ -35,6 +35,6 @@ jobs:
         run: |
           tko "./dist/tko_linux_amd64_v1"
         env:
+          TKO_BASE_IMAGE: "scratch"
+          TKO_DEST_PATH: "/usr/local/bin"
           TKO_TARGET_REPO: "ghcr.io/dskiff/tko:main" 
-          TKO_TARGET_TYPE: "LOCAL_DAEMON"
-          TKO_ENTRYPOINT: "/tko-app/tko"
