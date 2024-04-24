@@ -28,11 +28,8 @@ jobs:
           version: latest
           args: build --snapshot
 
-      - name: Get tko
-        run: |
-          wget https://github.com/dskiff/tko/releases/download/0.0.3/tko_Linux_x86_64.tar.gz
-          tar -xvf tko_Linux_x86_64.tar.gz
-          mv tko /usr/local/bin/tko
+      - name: Use built tko for publish
+        run: cp ./dist/tko_linux_amd64_v1/tko /usr/local/bin/tko
       
       - name: Publish
         run: |
