@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
-func Publish(ctx BuildContext, image v1.Image, target BuildSpecTarget) error {
+func publish(ctx BuildContext, image v1.Image, target BuildSpecTarget) error {
 	tag, err := name.NewTag(target.Repo)
 	if err != nil {
 		return fmt.Errorf("failed to parse target repo: %w", err)

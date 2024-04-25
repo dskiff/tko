@@ -22,7 +22,7 @@ func createLayerFromFolder(ctx BuildContext, layer BuildSpecInjectLayer, opts ..
 }
 
 func createTarFromFolder(ctx BuildContext, srcPath, dstPath string) (string, error) {
-	tarFile, err := CreateTempFile(ctx)
+	tarFile, err := createTempFile(ctx)
 	if err != nil {
 		return "", err
 	}

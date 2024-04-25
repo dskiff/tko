@@ -53,7 +53,7 @@ type BuildContext struct {
 }
 
 func Build(ctx BuildContext, spec BuildSpec) error {
-	baseImage, err := GetBaseImage(ctx, spec.BaseRef, spec.InjectLayer.Platform, ctx.Keychain)
+	baseImage, err := getBaseImage(ctx, spec.BaseRef, spec.InjectLayer.Platform, ctx.Keychain)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve base image: %w", err)
 	}
@@ -73,7 +73,7 @@ func Build(ctx BuildContext, spec BuildSpec) error {
 		return fmt.Errorf("failed to mutate config: %w", err)
 	}
 
-	return Publish(ctx, newImage, spec.Target)
+	return publish(ctx, newImage, spec.Target)
 }
 
 func mutateConfig(img v1.Image, layer BuildSpecInjectLayer) (v1.Image, error) {
