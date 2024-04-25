@@ -19,7 +19,7 @@ tko ./dist
 
 tko is:
 - Simple (pull base image, add content, push to registry)
-- Low footprint (<4MiB, single binary, no runtime deps)
+- Low footprint (<4MiB, single static binary, no runtime deps)
 - "rootless" (no sudo/daemon/chroot/caps/goats blood/etc needed).
 
 tko is NOT a replacement for generic docker build (or buildah, kaniko, etc). It cannot run a Dockerfile. It combines your build artifacts with a base image and modifies metadata. That's it. For me, this was enough for the majority of my container builds, but YMMV.
@@ -55,11 +55,12 @@ Unfortunately, ko is only for go. If you're using go, and by some weird SEO quir
     mkdir -p out
     mv target/*-runner out/app
 
+- use: dskiff/tko-setup@latest
+
 - name: Publish
   run: tko "./out"
   env:
     TKO_BASE_IMAGE: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
-    TKO_TARGET_REPO: ghcr.io/your-org/your-repo
     GITHUB_TOKEN: ${{ github.token }}
 ```
 
@@ -68,5 +69,5 @@ Unfortunately, ko is only for go. If you're using go, and by some weird SEO quir
 Aside from kaniko and buildah, there are a number of other tools you might find useful instead. I'm sure I'm missing some, but:
 
 - [umoci](https://umo.ci/) and [crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md) are CLIs for interacting with OCI images. You can accomplish a lot with these and a shell script, but I wanted something simpler and easier to maintain.
-- [stacker](https://github.com/project-stacker/stacker). I have not used it and can't vouch for it, but it seems to live in a middle ground between tko and something more like kaniko. In my case, its added complexity did not seem worth it, but it may be worth checking out if you're looking in this space
+- [stacker](https://github.com/project-stacker/stacker). I have not used it and can't vouch for it, but it seems to live in a middle ground between tko and something more like kaniko. In my case, its added complexity did not seem worth it, but it may be worth checking out if you're looking in this space.
 - [apko](https://github.com/chainguard-dev/apko) + [melange](https://github.com/chainguard-dev/melange). The tooling story is pretty rough at the time of writing this, but I like the direction. If you're an enterprise, looking to do enterprise-y things, I would recommend checking them out.
