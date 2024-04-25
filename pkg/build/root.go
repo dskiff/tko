@@ -17,35 +17,58 @@ const (
 	LOCAL_DAEMON
 )
 
-type RunConfig struct {
-	SrcPath    string
-	DstPath    string
-	Entrypoint string
-
-	BaseImage      string
-	TargetRepo     string
-	TargetType     TargetType
-	RemoteKeychain authn.Keychain
-
-	PlatformOs   string
-	PlatformArch string
-
-	TempPath           string
-	ExitCleanupWatcher *ExitCleanupWatcher
+type Platform struct {
+	OS   string
+	Arch string
 }
 
-func Run(ctx context.Context, cfg RunConfig) error {
-	tag, err := name.NewTag(cfg.TargetRepo)
+func (p Platform) String() string {
+	return p.OS + "/" + p.Arch
+}
+
+type RunConfigBase struct {
+	SourceUrl string
+}
+
+type RunConfigInjectLayer struct {
+	Platform Platform
+
+	SourcePath      string
+	DestinationPath string
+	Entrypoint      string
+}
+
+type RunConfigTarget struct {
+	Repo string
+	Type TargetType
+}
+
+type RunConfig struct {
+	BaseRef     string
+	InjectLayer RunConfigInjectLayer
+	Target      RunConfigTarget
+}
+
+type RunCtx struct {
+	Ctx                context.Context
+	ExitCleanupWatcher *ExitCleanupWatcher
+	Keychain           authn.Keychain
+
+	TempPath string
+}
+
+func Build(ctx RunCtx, cfg RunConfig) error {
+	tag, err := name.NewTag(cfg.Target.Repo)
 	if err != nil {
 		return fmt.Errorf("failed to parse target repo: %w", err)
 	}
 
-	baseImage, err := GetBaseImage(ctx, cfg.BaseImage, cfg)
+	baseImage, err := GetBaseImage(ctx, cfg.BaseRef, cfg.InjectLayer.Platform, ctx.Keychain)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve base image: %w", err)
 	}
 
-	newLayer, err := createLayerFromFolder(cfg.SrcPath, cfg.DstPath, cfg)
+	newLayer, err := createLayerFromFolder(ctx, cfg.InjectLayer.SourcePath, cfg.InjectLayer.DestinationPath)
 	if err != nil {
 		return fmt.Errorf("failed to create layer from source: %w", err)
 	}
@@ -60,7 +83,7 @@ func Run(ctx context.Context, cfg RunConfig) error {
 		return fmt.Errorf("failed to mutate config: %w", err)
 	}
 
-	return Publish(ctx, tag, newImage, cfg)
+	return Publish(ctx, tag, newImage, cfg.Target)
 }
 
 func mutateConfig(img v1.Image, runCfg RunConfig) (v1.Image, error) {
@@ -70,9 +93,9 @@ func mutateConfig(img v1.Image, runCfg RunConfig) (v1.Image, error) {
 	}
 	cfg = cfg.DeepCopy()
 
-	cfg.Config.Entrypoint = []string{runCfg.Entrypoint}
+	cfg.Config.WorkingDir = runCfg.InjectLayer.DestinationPath
+	cfg.Config.Entrypoint = []string{runCfg.InjectLayer.Entrypoint}
 	cfg.Config.Cmd = nil
-	cfg.Config.WorkingDir = runCfg.DstPath
 
 	return mutate.ConfigFile(img, cfg)
 }

@@ -1,7 +1,6 @@
 package build
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
-func Publish(ctx context.Context, tag name.Tag, image v1.Image, cfg RunConfig) error {
+func Publish(ctx RunCtx, tag name.Tag, image v1.Image, target RunConfigTarget) error {
 	digest, err := image.Digest()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve new image digest: %w", err)
@@ -19,23 +18,23 @@ func Publish(ctx context.Context, tag name.Tag, image v1.Image, cfg RunConfig) e
 
 	log.Printf("Publishing %s...", tag.Name()+"@"+digest.String())
 
-	switch cfg.TargetType {
+	switch target.Type {
 	case REMOTE:
 		log.Println("Publishing to remote...")
 
-		err := remote.Write(tag, image, remote.WithContext(ctx),
-			remote.WithAuthFromKeychain(cfg.RemoteKeychain))
+		err := remote.Write(tag, image, remote.WithContext(ctx.Ctx),
+			remote.WithAuthFromKeychain(ctx.Keychain))
 		if err != nil {
 			return fmt.Errorf("failed to write image to remote: %w", err)
 		}
 	case LOCAL_DAEMON:
 		log.Println("Publishing to local daemon...")
-		_, err := daemon.Write(tag, image, daemon.WithContext(ctx))
+		_, err := daemon.Write(tag, image, daemon.WithContext(ctx.Ctx))
 		if err != nil {
 			return fmt.Errorf("failed to write image to daemon: %w", err)
 		}
 	default:
-		return fmt.Errorf("unknown target type: %d", cfg.TargetType)
+		return fmt.Errorf("unknown target type: %d", target.Type)
 	}
 
 	return nil

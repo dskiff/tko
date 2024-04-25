@@ -4,11 +4,11 @@ import (
 	"os"
 )
 
-func CreateTempFile(cfg RunConfig) (*os.File, error) {
-	fp, err := os.CreateTemp(cfg.TempPath, "tko-temp-*.tar")
+func CreateTempFile(ctx RunCtx) (*os.File, error) {
+	fp, err := os.CreateTemp(ctx.TempPath, "tko-temp-*.tar")
 	if err != nil {
 		return nil, err
 	}
-	cfg.ExitCleanupWatcher.Append(fp.Name())
+	ctx.ExitCleanupWatcher.Append(fp.Name())
 	return fp, nil
 }

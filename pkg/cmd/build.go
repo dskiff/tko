@@ -33,36 +33,36 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 	)
 
 	cfg := build.RunConfig{
-		SrcPath:    b.SourcePath,
-		DstPath:    os.Getenv("TKO_DEST_PATH"),
-		Entrypoint: os.Getenv("TKO_ENTRYPOINT"),
-
-		BaseImage:      os.Getenv("TKO_BASE_IMAGE"),
-		TargetRepo:     os.Getenv("TKO_TARGET_REPO"),
-		TargetType:     targetType,
-		RemoteKeychain: keychain,
-
-		PlatformOs:   "linux",
-		PlatformArch: "amd64",
-
-		TempPath:           os.Getenv("TKO_TEMP_PATH"),
-		ExitCleanupWatcher: cliCtx.ExitCleanWatcher,
+		BaseRef: os.Getenv("TKO_BASE_IMAGE"),
+		InjectLayer: build.RunConfigInjectLayer{
+			Platform: build.Platform{
+				OS:   "linux",
+				Arch: "amd64",
+			},
+			SourcePath:      b.SourcePath,
+			DestinationPath: os.Getenv("TKO_DEST_PATH"),
+			Entrypoint:      os.Getenv("TKO_ENTRYPOINT"),
+		},
+		Target: build.RunConfigTarget{
+			Repo: os.Getenv("TKO_TARGET_REPO"),
+			Type: targetType,
+		},
 	}
 
-	if cfg.BaseImage == "" {
-		cfg.BaseImage = "cgr.dev/chainguard/static:latest"
+	if cfg.BaseRef == "" {
+		cfg.BaseRef = "cgr.dev/chainguard/static:latest"
 	}
 
-	if cfg.TargetRepo == "" {
+	if cfg.Target.Repo == "" {
 		return fmt.Errorf("target repo must be set")
 	}
 
-	if cfg.DstPath == "" {
-		cfg.DstPath = "/tko-app"
+	if cfg.InjectLayer.DestinationPath == "" {
+		cfg.InjectLayer.DestinationPath = "/tko-app"
 	}
 
-	if cfg.Entrypoint == "" {
-		cfg.Entrypoint = "/tko-app/app"
+	if cfg.InjectLayer.Entrypoint == "" {
+		cfg.InjectLayer.Entrypoint = "/tko-app/app"
 	}
 
 	out, err := yaml.Marshal(cfg)
@@ -80,7 +80,13 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		logs.Debug.SetOutput(os.Stderr)
 	}
 
-	return build.Run(cliCtx.Ctx, cfg)
+	return build.Build(build.RunCtx{
+		Ctx:                cliCtx.Ctx,
+		ExitCleanupWatcher: cliCtx.ExitCleanWatcher,
+		Keychain:           keychain,
+
+		TempPath: os.Getenv("TKO_TEMP_PATH"),
+	}, cfg)
 }
 
 func parseTargetType(str string) (build.TargetType, error) {

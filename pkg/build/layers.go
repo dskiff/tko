@@ -12,8 +12,8 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 )
 
-func createLayerFromFolder(srcPath, dstPath string, cfg RunConfig, opts ...tarball.LayerOption) (v1.Layer, error) {
-	tarPath, err := createTarFromFolder(srcPath, dstPath, cfg)
+func createLayerFromFolder(ctx RunCtx, srcPath, dstPath string, opts ...tarball.LayerOption) (v1.Layer, error) {
+	tarPath, err := createTarFromFolder(ctx, srcPath, dstPath)
 	if err != nil {
 		return nil, err
 	}
@@ -21,8 +21,8 @@ func createLayerFromFolder(srcPath, dstPath string, cfg RunConfig, opts ...tarba
 	return tarball.LayerFromFile(tarPath, opts...)
 }
 
-func createTarFromFolder(srcPath, dstPath string, cfg RunConfig) (string, error) {
-	tarFile, err := CreateTempFile(cfg)
+func createTarFromFolder(ctx RunCtx, srcPath, dstPath string) (string, error) {
+	tarFile, err := CreateTempFile(ctx)
 	if err != nil {
 		return "", err
 	}
