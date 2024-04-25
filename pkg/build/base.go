@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
-func GetBaseImage(ctx RunCtx, baseRef string, platform Platform, keychain authn.Keychain) (v1.Image, error) {
+func GetBaseImage(ctx BuildContext, baseRef string, platform Platform, keychain authn.Keychain) (v1.Image, error) {
 	if baseRef == "scratch" {
 		return empty.Image, nil
 	}
@@ -29,7 +29,7 @@ func GetBaseImage(ctx RunCtx, baseRef string, platform Platform, keychain authn.
 	return getImageForPlatform(index, platform)
 }
 
-func fetchImageIndex(ctx RunCtx, src string, keychain authn.Keychain) (name.Reference, v1.ImageIndex, error) {
+func fetchImageIndex(ctx BuildContext, src string, keychain authn.Keychain) (name.Reference, v1.ImageIndex, error) {
 	ref, err := name.ParseReference(src)
 	if err != nil {
 		return nil, nil, err

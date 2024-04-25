@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
-func Publish(ctx RunCtx, tag name.Tag, image v1.Image, target RunConfigTarget) error {
+func Publish(ctx BuildContext, tag name.Tag, image v1.Image, target BuildSpecTarget) error {
 	digest, err := image.Digest()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve new image digest: %w", err)

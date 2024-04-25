@@ -32,9 +32,9 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		github.Keychain,
 	)
 
-	cfg := build.RunConfig{
+	cfg := build.BuildSpec{
 		BaseRef: os.Getenv("TKO_BASE_IMAGE"),
-		InjectLayer: build.RunConfigInjectLayer{
+		InjectLayer: build.BuildSpecInjectLayer{
 			Platform: build.Platform{
 				OS:   "linux",
 				Arch: "amd64",
@@ -43,7 +43,7 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 			DestinationPath: os.Getenv("TKO_DEST_PATH"),
 			Entrypoint:      os.Getenv("TKO_ENTRYPOINT"),
 		},
-		Target: build.RunConfigTarget{
+		Target: build.BuildSpecTarget{
 			Repo: os.Getenv("TKO_TARGET_REPO"),
 			Type: targetType,
 		},
@@ -80,7 +80,7 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		logs.Debug.SetOutput(os.Stderr)
 	}
 
-	return build.Build(build.RunCtx{
+	return build.Build(build.BuildContext{
 		Ctx:                cliCtx.Ctx,
 		ExitCleanupWatcher: cliCtx.ExitCleanWatcher,
 		Keychain:           keychain,

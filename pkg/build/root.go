@@ -26,11 +26,7 @@ func (p Platform) String() string {
 	return p.OS + "/" + p.Arch
 }
 
-type RunConfigBase struct {
-	SourceUrl string
-}
-
-type RunConfigInjectLayer struct {
+type BuildSpecInjectLayer struct {
 	Platform Platform
 
 	SourcePath      string
@@ -38,18 +34,18 @@ type RunConfigInjectLayer struct {
 	Entrypoint      string
 }
 
-type RunConfigTarget struct {
+type BuildSpecTarget struct {
 	Repo string
 	Type TargetType
 }
 
-type RunConfig struct {
+type BuildSpec struct {
 	BaseRef     string
-	InjectLayer RunConfigInjectLayer
-	Target      RunConfigTarget
+	InjectLayer BuildSpecInjectLayer
+	Target      BuildSpecTarget
 }
 
-type RunCtx struct {
+type BuildContext struct {
 	Ctx                context.Context
 	ExitCleanupWatcher *ExitCleanupWatcher
 	Keychain           authn.Keychain
@@ -57,7 +53,7 @@ type RunCtx struct {
 	TempPath string
 }
 
-func Build(ctx RunCtx, cfg RunConfig) error {
+func Build(ctx BuildContext, cfg BuildSpec) error {
 	tag, err := name.NewTag(cfg.Target.Repo)
 	if err != nil {
 		return fmt.Errorf("failed to parse target repo: %w", err)
@@ -86,7 +82,7 @@ func Build(ctx RunCtx, cfg RunConfig) error {
 	return Publish(ctx, tag, newImage, cfg.Target)
 }
 
-func mutateConfig(img v1.Image, runCfg RunConfig) (v1.Image, error) {
+func mutateConfig(img v1.Image, runCfg BuildSpec) (v1.Image, error) {
 	cfg, err := img.ConfigFile()
 	if err != nil {
 		return nil, err
