@@ -3,6 +3,7 @@ package build
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
@@ -88,4 +89,28 @@ func mutateConfig(img v1.Image, layer BuildSpecInjectLayer) (v1.Image, error) {
 	imgCfg.Config.Cmd = nil
 
 	return mutate.ConfigFile(img, imgCfg)
+}
+
+func ParsePlatform(str string) (Platform, error) {
+	parts := strings.Split(str, "/")
+	if len(parts) != 2 {
+		return Platform{}, fmt.Errorf("invalid platform string: %s", str)
+	}
+	return Platform{
+		OS:   parts[0],
+		Arch: parts[1],
+	}, nil
+}
+
+func ParseTargetType(str string) (TargetType, error) {
+	switch str {
+	case "REMOTE":
+		return REMOTE, nil
+	case "LOCAL_DAEMON":
+		return LOCAL_DAEMON, nil
+	case "":
+		return REMOTE, nil
+	default:
+		return -1, fmt.Errorf("invalid target type: %s", str)
+	}
 }

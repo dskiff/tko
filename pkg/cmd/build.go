@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -15,13 +14,27 @@ import (
 )
 
 type BuildCmd struct {
-	SourcePath string `arg:"" name:"path" help:"Path to artifacts to embed" type:"path"`
+	BaseRef string `short:"b" help:"Base image reference" env:"TKO_BASE_IMAGE" default:"cgr.dev/chainguard/static:latest"`
+
+	Platform string `short:"p" help:"Platform to build for" env:"TKO_PLATFORM" default:"linux/amd64"`
+
+	SourcePath      string `arg:"" name:"path" help:"Path to artifacts to embed" type:"path" env:"TKO_SOURCE_PATH"`
+	DestinationPath string `short:"d" help:"Path to embed artifacts in" env:"TKO_DEST_PATH" default:"/tko-app"`
+	Entrypoint      string `short:"e" help:"Entrypoint for the embedded artifacts" env:"TKO_ENTRYPOINT" default:"/tko-app/app"`
+
+	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
+	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON"`
 
 	Verbose bool `short:"v" help:"Enable verbose output"`
 }
 
 func (b *BuildCmd) Run(cliCtx *CliCtx) error {
-	targetType, err := parseTargetType(os.Getenv("TKO_TARGET_TYPE"))
+	targetType, err := build.ParseTargetType(b.TargetType)
+	if err != nil {
+		return err
+	}
+
+	platform, err := build.ParsePlatform(b.Platform)
 	if err != nil {
 		return err
 	}
@@ -33,36 +46,17 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 	)
 
 	cfg := build.BuildSpec{
-		BaseRef: os.Getenv("TKO_BASE_IMAGE"),
+		BaseRef: b.BaseRef,
 		InjectLayer: build.BuildSpecInjectLayer{
-			Platform: build.Platform{
-				OS:   "linux",
-				Arch: "amd64",
-			},
+			Platform:        platform,
 			SourcePath:      b.SourcePath,
-			DestinationPath: os.Getenv("TKO_DEST_PATH"),
-			Entrypoint:      os.Getenv("TKO_ENTRYPOINT"),
+			DestinationPath: b.DestinationPath,
+			Entrypoint:      b.Entrypoint,
 		},
 		Target: build.BuildSpecTarget{
-			Repo: os.Getenv("TKO_TARGET_REPO"),
+			Repo: b.TargetRepo,
 			Type: targetType,
 		},
-	}
-
-	if cfg.BaseRef == "" {
-		cfg.BaseRef = "cgr.dev/chainguard/static:latest"
-	}
-
-	if cfg.Target.Repo == "" {
-		return fmt.Errorf("target repo must be set")
-	}
-
-	if cfg.InjectLayer.DestinationPath == "" {
-		cfg.InjectLayer.DestinationPath = "/tko-app"
-	}
-
-	if cfg.InjectLayer.Entrypoint == "" {
-		cfg.InjectLayer.Entrypoint = "/tko-app/app"
 	}
 
 	out, err := yaml.Marshal(cfg)
@@ -87,17 +81,4 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 
 		TempPath: os.Getenv("TKO_TEMP_PATH"),
 	}, cfg)
-}
-
-func parseTargetType(str string) (build.TargetType, error) {
-	switch str {
-	case "REMOTE":
-		return build.REMOTE, nil
-	case "LOCAL_DAEMON":
-		return build.LOCAL_DAEMON, nil
-	case "":
-		return build.REMOTE, nil
-	default:
-		return -1, fmt.Errorf("invalid target type: %s", str)
-	}
 }

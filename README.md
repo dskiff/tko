@@ -11,8 +11,7 @@ drop ALL `capabilities` to your hearts content.
 # Perform build, output to ./dist
 # Provide credentials using docker config, GITHUB_TOKEN, etc
 
-export TKO_TARGET_REPO="destination/repo"
-tko build ./dist
+tko build --target-repo="destination/repo" ./dist
 ```
 
 ## What?
