@@ -8,7 +8,7 @@ import (
 )
 
 type CliCtx struct {
-	Ctx              context.Context
+	Context          context.Context
 	TkoBuildVersion  string
 	TkoBuildCommit   string
 	TkoBuildDate     string

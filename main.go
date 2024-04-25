@@ -28,7 +28,7 @@ func main() {
 	defer exitCleanWatcher.Close()
 
 	cliContext := cmd.CliCtx{
-		Ctx:              ctx,
+		Context:          ctx,
 		TkoBuildVersion:  version,
 		TkoBuildCommit:   commit,
 		TkoBuildDate:     date,

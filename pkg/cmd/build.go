@@ -81,7 +81,7 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 	}
 
 	return build.Build(build.BuildContext{
-		Ctx:                cliCtx.Ctx,
+		Context:            cliCtx.Context,
 		ExitCleanupWatcher: cliCtx.ExitCleanWatcher,
 		Keychain:           keychain,
 

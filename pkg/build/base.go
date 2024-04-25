@@ -34,7 +34,7 @@ func fetchImageIndex(ctx BuildContext, src string, keychain authn.Keychain) (nam
 	if err != nil {
 		return nil, nil, err
 	}
-	base, err := remote.Index(ref, remote.WithContext(ctx.Ctx), remote.WithAuthFromKeychain(keychain))
+	base, err := remote.Index(ref, remote.WithContext(ctx.Context), remote.WithAuthFromKeychain(keychain))
 	return ref, base, err
 }
 

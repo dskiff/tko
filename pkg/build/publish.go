@@ -10,7 +10,12 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
-func Publish(ctx BuildContext, tag name.Tag, image v1.Image, target BuildSpecTarget) error {
+func Publish(ctx BuildContext, image v1.Image, target BuildSpecTarget) error {
+	tag, err := name.NewTag(target.Repo)
+	if err != nil {
+		return fmt.Errorf("failed to parse target repo: %w", err)
+	}
+
 	digest, err := image.Digest()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve new image digest: %w", err)
@@ -22,14 +27,14 @@ func Publish(ctx BuildContext, tag name.Tag, image v1.Image, target BuildSpecTar
 	case REMOTE:
 		log.Println("Publishing to remote...")
 
-		err := remote.Write(tag, image, remote.WithContext(ctx.Ctx),
+		err := remote.Write(tag, image, remote.WithContext(ctx.Context),
 			remote.WithAuthFromKeychain(ctx.Keychain))
 		if err != nil {
 			return fmt.Errorf("failed to write image to remote: %w", err)
 		}
 	case LOCAL_DAEMON:
 		log.Println("Publishing to local daemon...")
-		_, err := daemon.Write(tag, image, daemon.WithContext(ctx.Ctx))
+		_, err := daemon.Write(tag, image, daemon.WithContext(ctx.Context))
 		if err != nil {
 			return fmt.Errorf("failed to write image to daemon: %w", err)
 		}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/google/go-containerregistry/pkg/authn"
-	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 )
@@ -46,25 +45,20 @@ type BuildSpec struct {
 }
 
 type BuildContext struct {
-	Ctx                context.Context
+	Context            context.Context
 	ExitCleanupWatcher *ExitCleanupWatcher
 	Keychain           authn.Keychain
 
 	TempPath string
 }
 
-func Build(ctx BuildContext, cfg BuildSpec) error {
-	tag, err := name.NewTag(cfg.Target.Repo)
-	if err != nil {
-		return fmt.Errorf("failed to parse target repo: %w", err)
-	}
-
-	baseImage, err := GetBaseImage(ctx, cfg.BaseRef, cfg.InjectLayer.Platform, ctx.Keychain)
+func Build(ctx BuildContext, spec BuildSpec) error {
+	baseImage, err := GetBaseImage(ctx, spec.BaseRef, spec.InjectLayer.Platform, ctx.Keychain)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve base image: %w", err)
 	}
 
-	newLayer, err := createLayerFromFolder(ctx, cfg.InjectLayer.SourcePath, cfg.InjectLayer.DestinationPath)
+	newLayer, err := createLayerFromFolder(ctx, spec.InjectLayer)
 	if err != nil {
 		return fmt.Errorf("failed to create layer from source: %w", err)
 	}
@@ -74,24 +68,24 @@ func Build(ctx BuildContext, cfg BuildSpec) error {
 		return fmt.Errorf("failed to append layer to base image: %w", err)
 	}
 
-	newImage, err = mutateConfig(newImage, cfg)
+	newImage, err = mutateConfig(newImage, spec.InjectLayer)
 	if err != nil {
 		return fmt.Errorf("failed to mutate config: %w", err)
 	}
 
-	return Publish(ctx, tag, newImage, cfg.Target)
+	return Publish(ctx, newImage, spec.Target)
 }
 
-func mutateConfig(img v1.Image, runCfg BuildSpec) (v1.Image, error) {
-	cfg, err := img.ConfigFile()
+func mutateConfig(img v1.Image, layer BuildSpecInjectLayer) (v1.Image, error) {
+	imgCfg, err := img.ConfigFile()
 	if err != nil {
 		return nil, err
 	}
-	cfg = cfg.DeepCopy()
+	imgCfg = imgCfg.DeepCopy()
 
-	cfg.Config.WorkingDir = runCfg.InjectLayer.DestinationPath
-	cfg.Config.Entrypoint = []string{runCfg.InjectLayer.Entrypoint}
-	cfg.Config.Cmd = nil
+	imgCfg.Config.WorkingDir = layer.DestinationPath
+	imgCfg.Config.Entrypoint = []string{layer.Entrypoint}
+	imgCfg.Config.Cmd = nil
 
-	return mutate.ConfigFile(img, cfg)
+	return mutate.ConfigFile(img, imgCfg)
 }
