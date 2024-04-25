@@ -87,6 +87,8 @@ func main() {
 	log.Println("TKO_DEST_PATH:", TKO_DEST_PATH)
 	log.Println("TKO_ENTRYPOINT:", TKO_ENTRYPOINT)
 	log.Println("TKO_TEMP_PATH:", TKO_TEMP_PATH)
+	log.Println("TKO_TARGET_TYPE:", TKO_TARGET_TYPE)
+	log.Println("TKO_LOG_LEVEL:", TKO_LOG_LEVEL)
 	log.Println("Source path:", srcPath)
 	log.Println("")
 

@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   goreleaser:
@@ -14,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@8459bc0c7e3759cdf591f513d9f141a95fef0a8f
+        with:
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7
@@ -26,3 +29,21 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Use built tko for publish
+        run: cp ./dist/tko_linux_amd64_v1/tko /usr/local/bin/tko
+      
+      - name: Publish (bin)
+        run: tko "./dist/tko_linux_amd64_v1"
+        env:
+          TKO_BASE_IMAGE: "scratch"
+          TKO_DEST_PATH: "/usr/local/bin"
+          TKO_TARGET_REPO: "ghcr.io/dskiff/tko:bin" 
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Publish (version)
+        run: tko "./dist/tko_linux_amd64_v1"
+        env:
+          TKO_DEST_PATH: "/usr/local/bin"
+          TKO_TARGET_REPO: "ghcr.io/dskiff/tko:v${{ steps.goreleaser.outputs.version }}" 
+          GITHUB_TOKEN: ${{ github.token }}
