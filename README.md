@@ -12,7 +12,7 @@ drop ALL `capabilities` to your hearts content.
 # Provide credentials using docker config, GITHUB_TOKEN, etc
 
 export TKO_TARGET_REPO="destination/repo"
-tko ./dist
+tko build ./dist
 ```
 
 ## What?
@@ -58,7 +58,7 @@ Unfortunately, ko is only for go. If you're using go, and by some weird SEO quir
 - use: dskiff/tko-setup@latest
 
 - name: Publish
-  run: tko "./out"
+  run: tko build "./out"
   env:
     TKO_BASE_IMAGE: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
     GITHUB_TOKEN: ${{ github.token }}

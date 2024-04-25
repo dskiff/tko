@@ -18,8 +18,6 @@ var commit = "none"
 var date = "unknown"
 
 func main() {
-	log.Printf("tko %s (%s) built on %s\n", version, commit, date)
-
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
@@ -30,8 +28,10 @@ func main() {
 	defer exitCleanWatcher.Close()
 
 	cliContext := cmd.CliCtx{
-		Ctx:              &ctx,
-		Version:          version,
+		Ctx:              ctx,
+		TkoBuildVersion:  version,
+		TkoBuildCommit:   commit,
+		TkoBuildDate:     date,
 		ExitCleanWatcher: exitCleanWatcher,
 	}
 
