@@ -13,5 +13,18 @@
       "automerge": true,
       "autoApprove": true
     }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+          "^github/workflows/(.+).yml$"
+      ],
+      "matchStrings": [
+          "TKO_BASE_IMAGE:\\s*(?<depName>[^:]+):(?<currentValue>[^@]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
+      ],
+      "autoReplaceStringTemplate": "TKO_BASE_IMAGE: {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
+      "datasourceTemplate": "docker"
+    }
   ]
 }
