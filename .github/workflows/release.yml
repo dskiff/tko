@@ -35,7 +35,7 @@ jobs:
         run: cp ./dist/tko_linux_amd64_v1/tko /usr/local/bin/tko
       
       - name: Publish (bin)
-        run: tko build -b "scratch" bin" "./dist/tko_linux_amd64_v1"
+        run: tko build -b "scratch" -d "/usr/local/bin" -t "ghcr.io/dskiff/tko:bin" "./dist/tko_linux_amd64_v1"
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
