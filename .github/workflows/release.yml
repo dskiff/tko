@@ -30,6 +30,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # NOTE: Generally, ko should be preferred for golang, but this is an attempt to dogfood tko
       - name: Use built tko for publish
         run: cp ./dist/tko_linux_amd64_v1/tko /usr/local/bin/tko
       
@@ -45,5 +46,5 @@ jobs:
         run: tko "./dist/tko_linux_amd64_v1"
         env:
           TKO_DEST_PATH: "/usr/local/bin"
-          TKO_TARGET_REPO: "ghcr.io/dskiff/tko:v${{ steps.goreleaser.outputs.version }}" 
+          TKO_TARGET_REPO: "ghcr.io/dskiff/tko:v${{ github.ref_name }}" 
           GITHUB_TOKEN: ${{ github.token }}
