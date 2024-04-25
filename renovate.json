@@ -18,7 +18,7 @@
     {
       "customType": "regex",
       "fileMatch": [
-          "^github/workflows/(.+).yml$"
+          "^.github/workflows/(.+).yml$"
       ],
       "matchStrings": [
           "TKO_BASE_IMAGE:\\s*(?<depName>[^:]+):(?<currentValue>[^@]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
