@@ -45,6 +45,7 @@ jobs:
       - name: Publish (version)
         run: tko "./dist/tko_linux_amd64_v1"
         env:
+          TKO_BASE_IMAGE: registry.access.redhat.com/ubi9/ubi@sha256:66233eebd72bb5baa25190d4f55e1dc3fff3a9b77186c1f91a0abdb274452072
           TKO_DEST_PATH: "/usr/local/bin"
           TKO_TARGET_REPO: "ghcr.io/dskiff/tko:${{ github.ref_name }}" 
           GITHUB_TOKEN: ${{ github.token }}
