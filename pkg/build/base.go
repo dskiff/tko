@@ -24,7 +24,7 @@ func getBaseImage(ctx BuildContext, baseRef string, platform Platform, keychain 
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve base image digest: %w", err)
 	}
-	log.Println("Using base image:", ref.Name()+"@"+baseDigest.String())
+	log.Println("Using base image:", ref.Context().Name()+"@"+baseDigest.String())
 
 	return getImageForPlatform(index, platform)
 }
