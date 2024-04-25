@@ -22,14 +22,14 @@ tko is:
 - Low footprint (<4MiB, single binary, no runtime deps)
 - "rootless" (no sudo/daemon/chroot/caps/goats blood/etc needed).
 
-tko is NOT a replacement for generic docker build (or buildah, kaniko, etc). It cannot execute anything inside of the container as part of the build. It injects your build artifacts. That's it. In my case, this was enough for almost everything. YMMV.
+tko is NOT a replacement for generic docker build (or buildah, kaniko, etc). It cannot run a Dockerfile. It combines your build artifacts with a base image and modifies metadata. That's it. For me, this was enough for the majority of my container builds, but YMMV.
  
 ## Why?
 
-Constructing containers inside of a constrained environment stinks (e.g. a k8s pod). While there are a number of existing solutions, they all have substantial tradeoffs.
+Constructing containers inside of a constrained environment stinks (e.g. a k8s pod with a reasonable PSA). While there are a number of existing solutions, they all have substantial tradeoffs.
 
-- DinD has considerable security implications, and depending on your environment may be a non-starter
-- DinK is more secure, but it adds more moving pieces and has some performance issues (e.g. RWX PVCs)
+- DinD has considerable security implications, and depending on your environment may be a non-starter.
+- DinK avoids exposing your daemon directly, but introduces some fun new security issues. Additionally, it adds more moving pieces and has some resource/performance issues (e.g. RWX PVCs).
 - I have never gotten [buildah](https://github.com/containers/buildah) to work well in constrained environments (e.g. requiring something like `CAP_SETUID`). That being said, both it and kaniko _do more_ than tko. Much more. 
 - [kaniko](https://github.com/GoogleContainerTools/kaniko) only supports being run in the published container. I've actually gotten the most mileage with kaniko in constrained environments (other than ko), but it often came with hacks or quirks to make it work how I wanted it to.
 
