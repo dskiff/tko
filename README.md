@@ -47,19 +47,34 @@ Unfortunately, ko is only for go. If you're using go, and by some weird SEO quir
   with:
     java-version: '17'
     distribution: 'mandrel'
+
+- use: dskiff/tko-setup@latest
     
-- name: Build with Maven
-  run: |
+- run: |
     ./mvnw package -Dnative
     mkdir -p out
     mv target/*-runner out/app
 
+- run: tko build "./out"
+  env:
+    TKO_BASE_IMAGE: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
+    GITHUB_TOKEN: ${{ github.token }}
+```
+
+### Deno + Rootless Github Self Hosted Runners
+
+```
+- uses: denoland/setup-deno@v1
+  with:
+    deno-version: v1.x
+
 - use: dskiff/tko-setup@latest
 
-- name: Publish
-  run: tko build "./out"
+- run: deno compile --lock=deno.lock --output dist/app src/main.ts 
+
+- run: tko build "./dist"
   env:
-    TKO_BASE_IMAGE: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
+    TKO_BASE_IMAGE: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
     GITHUB_TOKEN: ${{ github.token }}
 ```
 
