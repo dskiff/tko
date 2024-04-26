@@ -48,7 +48,7 @@ Unfortunately, ko is only for go. If you're using go, and by some weird SEO quir
     java-version: '17'
     distribution: 'mandrel'
 
-- use: dskiff/tko-setup@latest
+- use: dskiff/setup-tko@main
     
 - run: |
     ./mvnw package -Dnative
@@ -68,7 +68,7 @@ Unfortunately, ko is only for go. If you're using go, and by some weird SEO quir
   with:
     deno-version: v1.x
 
-- use: dskiff/tko-setup@latest
+- use: dskiff/setup-tko@main
 
 - run: deno compile --lock=deno.lock --output dist/app src/main.ts 
 
