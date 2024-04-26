@@ -19,7 +19,8 @@ tko build --target-repo="destination/repo" ./dist
 tko is:
 - Simple (pull base image, add content, push to registry)
 - Low footprint (<4MiB, single static binary, no runtime deps)
-- "rootless" (no sudo/daemon/chroot/caps/goats blood/etc needed).
+- Rootless (no sudo/daemon/chroot/caps/goats blood/etc needed)
+- Reproducible (same build artifacts -> same image digest)
 
 tko is NOT a replacement for generic docker build (or buildah, kaniko, etc). It cannot run a Dockerfile. It combines your build artifacts with a base image and modifies metadata. That's it. For me, this was enough for the majority of my container builds, but YMMV.
  
