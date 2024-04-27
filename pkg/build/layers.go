@@ -12,6 +12,8 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 )
 
+var unixEpoch = time.Unix(0, 0)
+
 func createLayerFromFolder(ctx BuildContext, layer BuildSpecInjectLayer, opts ...tarball.LayerOption) (v1.Layer, error) {
 	tarPath, err := createTarFromFolder(ctx, layer.SourcePath, layer.DestinationPath)
 	if err != nil {
@@ -31,7 +33,6 @@ func createTarFromFolder(ctx BuildContext, srcPath, dstPath string) (string, err
 	writer := tar.NewWriter(tarFile)
 	defer writer.Close()
 
-	unixEpoch := time.Unix(0, 0)
 	err = filepath.Walk(srcPath, func(file string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return err

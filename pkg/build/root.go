@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/google/go-containerregistry/pkg/v1/types"
+	specsv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 type TargetType int
@@ -59,7 +59,7 @@ type BuildContext struct {
 }
 
 func Build(ctx BuildContext, spec BuildSpec) error {
-	baseImage, err := getBaseImage(ctx, spec.BaseRef, spec.InjectLayer.Platform, ctx.Keychain)
+	baseImage, baseMetadata, err := getBaseImage(ctx, spec.BaseRef, spec.InjectLayer.Platform, ctx.Keychain)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve base image: %w", err)
 	}
@@ -74,7 +74,6 @@ func Build(ctx BuildContext, spec BuildSpec) error {
 		return fmt.Errorf("failed to create layer from source: %w", err)
 	}
 
-	unixEpoch := time.Unix(0, 0)
 	newImage, err := mutate.Append(baseImage, mutate.Addendum{
 		Layer:     newLayer,
 		MediaType: mediaType,
@@ -88,7 +87,7 @@ func Build(ctx BuildContext, spec BuildSpec) error {
 		return fmt.Errorf("failed to append layer to base image: %w", err)
 	}
 
-	newImage, err = mutateConfig(newImage, spec)
+	newImage, err = mutateConfig(newImage, spec, baseMetadata)
 	if err != nil {
 		return fmt.Errorf("failed to mutate config: %w", err)
 	}
@@ -96,7 +95,7 @@ func Build(ctx BuildContext, spec BuildSpec) error {
 	return publish(ctx, newImage, spec.Target)
 }
 
-func mutateConfig(img v1.Image, spec BuildSpec) (v1.Image, error) {
+func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.Image, error) {
 	imgCfg, err := img.ConfigFile()
 	if err != nil {
 		return nil, err
@@ -106,7 +105,12 @@ func mutateConfig(img v1.Image, spec BuildSpec) (v1.Image, error) {
 	imgCfg.Config.WorkingDir = spec.InjectLayer.DestinationPath
 	imgCfg.Config.Entrypoint = []string{spec.InjectLayer.Entrypoint}
 	imgCfg.Config.Cmd = nil
+
+	imgCfg.Created = v1.Time{Time: unixEpoch}
 	imgCfg.Author = spec.Author
+
+	imgCfg.Config.Labels[specsv1.AnnotationBaseImageName] = metadata.name
+	imgCfg.Config.Labels[specsv1.AnnotationBaseImageDigest] = metadata.imageDigest
 
 	return mutate.ConfigFile(img, imgCfg)
 }

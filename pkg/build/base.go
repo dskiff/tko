@@ -11,22 +11,44 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
-func getBaseImage(ctx BuildContext, baseRef string, platform Platform, keychain authn.Keychain) (v1.Image, error) {
+type BaseImageMetadata struct {
+	name        string
+	imageDigest string
+}
+
+func getBaseImage(ctx BuildContext, baseRef string, platform Platform, keychain authn.Keychain) (v1.Image, BaseImageMetadata, error) {
 	if baseRef == "scratch" {
-		return empty.Image, nil
+		return empty.Image, BaseImageMetadata{
+			name: "scratch",
+		}, nil
 	}
 
 	ref, index, err := fetchImageIndex(ctx, baseRef, keychain)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve base image index: %w", err)
+		return nil, BaseImageMetadata{}, fmt.Errorf("failed to retrieve base image index: %w", err)
 	}
 	baseDigest, err := index.Digest()
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve base image digest: %w", err)
+		return nil, BaseImageMetadata{}, fmt.Errorf("failed to retrieve base image index digest: %w", err)
 	}
 	log.Println("Using base image:", ref.Context().Name()+"@"+baseDigest.String())
 
-	return getImageForPlatform(index, platform)
+	img, err := getImageForPlatform(index, platform)
+	if err != nil {
+		return nil, BaseImageMetadata{}, fmt.Errorf("failed to retrieve base image for platform: %w", err)
+	}
+
+	imgDigest, err := img.Digest()
+	if err != nil {
+		return nil, BaseImageMetadata{}, fmt.Errorf("failed to retrieve base image digest: %w", err)
+	}
+
+	metadata := BaseImageMetadata{
+		name:        ref.Context().Name(),
+		imageDigest: imgDigest.String(),
+	}
+
+	return img, metadata, nil
 }
 
 func fetchImageIndex(ctx BuildContext, src string, keychain authn.Keychain) (name.Reference, v1.ImageIndex, error) {
