@@ -111,11 +111,12 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 	imgCfg.Container = ""
 	imgCfg.DockerVersion = ""
 
-	if imgCfg.Config.Labels == nil {
-		imgCfg.Config.Labels = map[string]string{}
-	}
+	imgCfg.Config.Labels = map[string]string{}
 	imgCfg.Config.Labels["org.opencontainers.image.base.name"] = metadata.name
-	imgCfg.Config.Labels["org.opencontainers.image.base.digest"] = metadata.imageDigest
+
+	if metadata.imageDigest != "" {
+		imgCfg.Config.Labels["org.opencontainers.image.base.digest"] = metadata.imageDigest
+	}
 
 	for k, v := range spec.Labels {
 		imgCfg.Config.Labels[k] = v
