@@ -14,7 +14,7 @@ import (
 )
 
 type BuildCmd struct {
-	BaseRef string `short:"b" help:"Base image reference" env:"TKO_BASE_IMAGE" default:"cgr.dev/chainguard/static:latest"`
+	BaseRef string `short:"b" help:"Base image reference" env:"TKO_BASE_IMAGE" default:"ubuntu:jammy@latest"`
 
 	Platform string `short:"p" help:"Platform to build for" env:"TKO_PLATFORM" default:"linux/amd64"`
 
