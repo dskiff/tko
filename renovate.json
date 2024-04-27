@@ -21,9 +21,9 @@
           "^.github/workflows/(.+).yml$"
       ],
       "matchStrings": [
-          "TKO_BASE_IMAGE:\\s*(?<depName>[^:\\n]+):(?<currentValue>[^@\\n]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
+          "TKO_BASE_REF:\\s*(?<depName>[^:\\n]+):(?<currentValue>[^@\\n]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
-      "autoReplaceStringTemplate": "TKO_BASE_IMAGE: {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
+      "autoReplaceStringTemplate": "TKO_BASE_REF: {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
       "datasourceTemplate": "docker"
     }
   ]

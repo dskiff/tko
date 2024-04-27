@@ -14,7 +14,7 @@ import (
 )
 
 type BuildCmd struct {
-	BaseRef string `short:"b" help:"Base image reference" env:"TKO_BASE_IMAGE" default:"ubuntu:jammy"`
+	BaseRef string `short:"b" help:"Base image reference" env:"TKO_BASE_REF" default:"ubuntu:jammy"`
 
 	Platform string `short:"p" help:"Platform to build for" env:"TKO_PLATFORM" default:"linux/amd64"`
 
@@ -25,9 +25,9 @@ type BuildCmd struct {
 	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
 	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON,LOCAL_FILE"`
 
-	Author        string            `short:"a" help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
-	DefaultLabels map[string]string `short:"L" help:"Default labels to apply to the image" env:"TKO_DEFAULT_LABELS" default:"" mapsep:"," sep:"="`
-	Labels        map[string]string `short:"l" help:"Additional labels to apply to the image. Can override default-labels." env:"LABELS" default:"" mapsep:"," sep:"="`
+	Author             string            `help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
+	DefaultAnnotations map[string]string `short:"A" help:"Default annotations to apply to the image" env:"TKO_DEFAULT_ANNOTATIONS" default:"" mapsep:"," sep:"="`
+	Annotations        map[string]string `short:"a" help:"Additional annotations to apply to the image. Can override default-annotations." env:"TKO_ANNOTATIONS" default:"" mapsep:"," sep:"="`
 
 	Tmp     string `help:"Path where tko can write temporary files. Defaults to golang's tmp logic." env:"TKO_TMP" default:""`
 	Verbose bool   `short:"v" help:"Enable verbose output"`
@@ -50,13 +50,13 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		github.Keychain,
 	)
 
-	// Labels would ideally be merged by kong, but this works too
-	labels := make(map[string]string)
-	for k, v := range b.DefaultLabels {
-		labels[k] = v
+	// Annotations would ideally be merged by kong, but this works too
+	annotations := make(map[string]string)
+	for k, v := range b.DefaultAnnotations {
+		annotations[k] = v
 	}
-	for k, v := range b.Labels {
-		labels[k] = v
+	for k, v := range b.Annotations {
+		annotations[k] = v
 	}
 
 	cfg := build.BuildSpec{
@@ -72,8 +72,8 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 			Type: targetType,
 		},
 
-		Author: b.Author,
-		Labels: labels,
+		Author:      b.Author,
+		Annotations: annotations,
 	}
 
 	out, err := yaml.Marshal(cfg)

@@ -47,7 +47,7 @@ You can also provide any of the supported parameters using a `.tko.yml` (or `.tk
 build:
   base-ref: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
   author: my name
-  labels:
+  default-annotations:
     org.opencontainers.image.source: github.com/my-org/my-project
 ```
 
@@ -70,7 +70,7 @@ build:
 
 - run: tko build "./out"
   env:
-    TKO_BASE_IMAGE: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
+    TKO_BASE_REF: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
     GITHUB_TOKEN: ${{ github.token }}
 ```
 
@@ -87,7 +87,7 @@ build:
 
 - run: tko build "./dist"
   env:
-    TKO_BASE_IMAGE: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
+    TKO_BASE_REF: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
     GITHUB_TOKEN: ${{ github.token }}
 ```
 

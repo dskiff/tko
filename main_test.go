@@ -22,10 +22,10 @@ build:
   target-repo: repo/target
 
   author: me
-  default-labels:
+  default-annotations:
     label1: value1
     label2: value2
-  labels:
+  annotations:
     label3: value3
     label4: value4
   
@@ -50,10 +50,10 @@ build:
 	assert.Equal(t, "repo/target", cli.Build.TargetRepo)
 
 	assert.Equal(t, "me", cli.Build.Author)
-	assert.Equal(t, "value1", cli.Build.DefaultLabels["label1"])
-	assert.Equal(t, "value2", cli.Build.DefaultLabels["label2"])
-	assert.Equal(t, "value3", cli.Build.Labels["label3"])
-	assert.Equal(t, "value4", cli.Build.Labels["label4"])
+	assert.Equal(t, "value1", cli.Build.DefaultAnnotations["label1"])
+	assert.Equal(t, "value2", cli.Build.DefaultAnnotations["label2"])
+	assert.Equal(t, "value3", cli.Build.Annotations["label3"])
+	assert.Equal(t, "value4", cli.Build.Annotations["label4"])
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)
@@ -77,11 +77,11 @@ func TestBuildArgs(t *testing.T) {
 		"-e", "/entrypoint",
 		"-d", "/destination",
 		"-t", "repo/target",
-		"-a", "me",
-		"-L", "label1=value1",
-		"-L", "label2=value2",
-		"-l", "label3=value3",
-		"-l", "label4=value4",
+		"--author", "me",
+		"-A", "label1=value1",
+		"-A", "label2=value2",
+		"-a", "label3=value3",
+		"-a", "label4=value4",
 		"-T", "REMOTE",
 		"-v",
 		"--tmp", "/tmp-dir",
@@ -97,10 +97,10 @@ func TestBuildArgs(t *testing.T) {
 	assert.Equal(t, "repo/target", cli.Build.TargetRepo)
 
 	assert.Equal(t, "me", cli.Build.Author)
-	assert.Equal(t, "value1", cli.Build.DefaultLabels["label1"])
-	assert.Equal(t, "value2", cli.Build.DefaultLabels["label2"])
-	assert.Equal(t, "value3", cli.Build.Labels["label3"])
-	assert.Equal(t, "value4", cli.Build.Labels["label4"])
+	assert.Equal(t, "value1", cli.Build.DefaultAnnotations["label1"])
+	assert.Equal(t, "value2", cli.Build.DefaultAnnotations["label2"])
+	assert.Equal(t, "value3", cli.Build.Annotations["label3"])
+	assert.Equal(t, "value4", cli.Build.Annotations["label4"])
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)
