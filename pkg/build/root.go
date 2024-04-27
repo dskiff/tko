@@ -48,6 +48,7 @@ type BuildSpec struct {
 	Target      BuildSpecTarget
 
 	Author string
+	Labels map[string]string
 }
 
 type BuildContext struct {
@@ -115,6 +116,10 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 	}
 	imgCfg.Config.Labels["org.opencontainers.image.base.name"] = metadata.name
 	imgCfg.Config.Labels["org.opencontainers.image.base.digest"] = metadata.imageDigest
+
+	for k, v := range spec.Labels {
+		imgCfg.Config.Labels[k] = v
+	}
 
 	return mutate.ConfigFile(img, imgCfg)
 }

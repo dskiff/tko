@@ -25,7 +25,8 @@ type BuildCmd struct {
 	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
 	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON,LOCAL_FILE"`
 
-	Author string `short:"a" help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
+	Author string            `short:"a" help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
+	Labels map[string]string `short:"l" help:"Labels to apply to the image" env:"TKO_LABELS" default:"" mapsep:"," sep:"="`
 
 	Verbose bool `short:"v" help:"Enable verbose output"`
 }
@@ -61,6 +62,7 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		},
 
 		Author: b.Author,
+		Labels: b.Labels,
 	}
 
 	out, err := yaml.Marshal(cfg)
