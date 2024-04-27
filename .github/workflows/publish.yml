@@ -32,8 +32,8 @@ jobs:
         run: cp ./dist/tko_linux_amd64_v1/tko /usr/local/bin/tko
       
       - name: Publish (latest)
-        run: tko build -t "ghcr.io/dskiff/tko:latest" "./dist/tko_linux_amd64_v1"
+        run: tko build -t "ghcr.io/dskiff/tko:latest" -e "/bin/bash" "./dist/tko_linux_amd64_v1"
         env:
-          TKO_ENTRYPOINT: /bin/bash
           TKO_BASE_IMAGE: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
+          TKO_ADDITIONAL_LABELS: org.opencontainers.image.revision=${{ github.sha }}
           GITHUB_TOKEN: ${{ github.token }}

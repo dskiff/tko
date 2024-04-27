@@ -8,16 +8,11 @@ require (
 )
 
 require (
-	github.com/alecthomas/assert/v2 v2.6.0
 	github.com/alecthomas/kong-yaml v0.2.0
 	gotest.tools/v3 v3.0.3
 )
 
-require (
-	github.com/alecthomas/repr v0.4.0 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/hexops/gotextdiff v1.0.3 // indirect
-)
+require github.com/google/go-cmp v0.6.0 // indirect
 
 require (
 	github.com/kr/pretty v0.3.1 // indirect

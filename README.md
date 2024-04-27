@@ -39,6 +39,18 @@ Enter ko. ko is a simple, single binary. You call `ko build`. It doesn't require
 
 Unfortunately, ko is only for go. If you're using go, and by some weird SEO quirk you ended up here instead. Stop. Go use [ko](https://ko.build). If you're not, tko may be your answer.
 
+## Configuration file
+
+You can also provide any of the supported parameters using a `.tko.yml` (or `.tko.yaml`). 
+
+```
+build:
+  base-ref: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
+  author: my name
+  labels:
+    org.opencontainers.image.source: github.com/my-org/my-project
+```
+
 ## Examples
 
 ### Quarkus + Rootless Github Self Hosted Runners

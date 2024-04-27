@@ -25,8 +25,9 @@ type BuildCmd struct {
 	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
 	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON,LOCAL_FILE"`
 
-	Author string            `short:"a" help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
-	Labels map[string]string `short:"l" help:"Labels to apply to the image" env:"TKO_LABELS" default:"" mapsep:"," sep:"="`
+	Author           string            `short:"a" help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
+	Labels           map[string]string `short:"l" help:"Labels to apply to the image" env:"TKO_LABELS" default:"" mapsep:"," sep:"="`
+	AdditionalLabels map[string]string `short:"al" help:"Additional labels to apply to the image" env:"TKO_ADDITIONAL_LABELS" default:"" mapsep:"," sep:"="`
 
 	Tmp     string `help:"Path where tko can write temporary files. Defaults to golang's tmp logic." env:"TKO_TMP" default:""`
 	Verbose bool   `short:"v" help:"Enable verbose output"`
@@ -49,6 +50,15 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		github.Keychain,
 	)
 
+	// Labels would ideally be merged by kong, but this works too
+	labels := make(map[string]string)
+	for k, v := range b.Labels {
+		labels[k] = v
+	}
+	for k, v := range b.AdditionalLabels {
+		labels[k] = v
+	}
+
 	cfg := build.BuildSpec{
 		BaseRef: b.BaseRef,
 		InjectLayer: build.BuildSpecInjectLayer{
@@ -63,7 +73,7 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		},
 
 		Author: b.Author,
-		Labels: b.Labels,
+		Labels: labels,
 	}
 
 	out, err := yaml.Marshal(cfg)
