@@ -32,9 +32,10 @@ func (p Platform) String() string {
 type BuildSpecInjectLayer struct {
 	Platform Platform
 
-	SourcePath      string
-	DestinationPath string
-	Entrypoint      string
+	SourcePath       string
+	DestinationPath  string
+	DestinationChown bool
+	Entrypoint       string
 }
 
 type BuildSpecTarget struct {

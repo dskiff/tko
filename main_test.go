@@ -19,6 +19,7 @@ build:
 
   entrypoint: /entrypoint
   destination-path: /destination
+  destination-chown: false
   target-repo: repo/target
 
   author: me
@@ -47,6 +48,7 @@ build:
 
 	assert.Equal(t, "/entrypoint", cli.Build.Entrypoint)
 	assert.Equal(t, "/destination", cli.Build.DestinationPath)
+	assert.Equal(t, false, cli.Build.DestinationChown)
 	assert.Equal(t, "repo/target", cli.Build.TargetRepo)
 
 	assert.Equal(t, "me", cli.Build.Author)
@@ -76,6 +78,7 @@ func TestBuildArgs(t *testing.T) {
 		"-p", "custom-os/arch-variant",
 		"-e", "/entrypoint",
 		"-d", "/destination",
+		"--destination-chown=false",
 		"-t", "repo/target",
 		"--author", "me",
 		"-A", "label1=value1",
@@ -94,6 +97,7 @@ func TestBuildArgs(t *testing.T) {
 
 	assert.Equal(t, "/entrypoint", cli.Build.Entrypoint)
 	assert.Equal(t, "/destination", cli.Build.DestinationPath)
+	assert.Equal(t, false, cli.Build.DestinationChown)
 	assert.Equal(t, "repo/target", cli.Build.TargetRepo)
 
 	assert.Equal(t, "me", cli.Build.Author)

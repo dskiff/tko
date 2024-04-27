@@ -18,9 +18,10 @@ type BuildCmd struct {
 
 	Platform string `short:"p" help:"Platform to build for" env:"TKO_PLATFORM" default:"linux/amd64"`
 
-	SourcePath      string `arg:"" name:"path" help:"Path to artifacts to embed" type:"path" env:"TKO_SOURCE_PATH"`
-	DestinationPath string `short:"d" help:"Path to embed artifacts in" env:"TKO_DEST_PATH" default:"/tko-app"`
-	Entrypoint      string `short:"e" help:"Entrypoint for the embedded artifacts" env:"TKO_ENTRYPOINT" default:"/tko-app/app"`
+	SourcePath       string `arg:"" name:"path" help:"Path to artifacts to embed" type:"path" env:"TKO_SOURCE_PATH"`
+	DestinationPath  string `short:"d" help:"Path to embed artifacts in" env:"TKO_DEST_PATH" default:"/tko-app"`
+	DestinationChown bool   `help:"Whether to chown the destination path to root:root" default:"true"`
+	Entrypoint       string `short:"e" help:"Entrypoint for the embedded artifacts" env:"TKO_ENTRYPOINT" default:"/tko-app/app"`
 
 	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
 	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON,LOCAL_FILE"`
@@ -62,10 +63,11 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 	cfg := build.BuildSpec{
 		BaseRef: b.BaseRef,
 		InjectLayer: build.BuildSpecInjectLayer{
-			Platform:        platform,
-			SourcePath:      b.SourcePath,
-			DestinationPath: b.DestinationPath,
-			Entrypoint:      b.Entrypoint,
+			Platform:         platform,
+			SourcePath:       b.SourcePath,
+			DestinationPath:  b.DestinationPath,
+			DestinationChown: b.DestinationChown,
+			Entrypoint:       b.Entrypoint,
 		},
 		Target: build.BuildSpecTarget{
 			Repo: b.TargetRepo,

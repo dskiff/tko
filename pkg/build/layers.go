@@ -16,7 +16,7 @@ import (
 var unixEpoch = time.Unix(0, 0)
 
 func createLayerFromFolder(ctx BuildContext, layer BuildSpecInjectLayer, opts ...tarball.LayerOption) (v1.Layer, error) {
-	tarPath, err := createTarFromFolder(ctx, layer.SourcePath, layer.DestinationPath)
+	tarPath, err := createTarFromFolder(ctx, layer.SourcePath, layer.DestinationPath, layer.DestinationChown)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func createLayerFromFolder(ctx BuildContext, layer BuildSpecInjectLayer, opts ..
 	return tarball.LayerFromFile(tarPath, opts...)
 }
 
-func createTarFromFolder(ctx BuildContext, srcPath, dstPath string) (string, error) {
+func createTarFromFolder(ctx BuildContext, srcPath, dstPath string, chown bool) (string, error) {
 	tarFile, err := createTempFile(ctx)
 	if err != nil {
 		return "", err
@@ -53,16 +53,18 @@ func createTarFromFolder(ctx BuildContext, srcPath, dstPath string) (string, err
 			return err
 		}
 		header.Name = filepath.Join(dstPath, relPath)
-
 		header.AccessTime = unixEpoch
 		header.ChangeTime = unixEpoch
 		header.ModTime = unixEpoch
-		header.Uid = 0
-		header.Gid = 0
-		header.Gname = "root"
-		header.Uname = "root"
 		header.PAXRecords = nil
 		header.Xattrs = nil
+
+		if chown {
+			header.Uid = 0
+			header.Gid = 0
+			header.Gname = "root"
+			header.Uname = "root"
+		}
 
 		log.Println("adding file:", header.Name)
 
