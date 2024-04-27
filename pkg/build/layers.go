@@ -2,6 +2,7 @@ package build
 
 import (
 	"archive/tar"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -43,6 +44,10 @@ func createTarFromFolder(ctx BuildContext, srcPath, dstPath string) (string, err
 			return err
 		}
 
+		if header.Typeflag == tar.TypeSymlink || header.Typeflag == tar.TypeLink {
+			return fmt.Errorf("links are not supported: %s", fi.Name())
+		}
+
 		relPath, err := filepath.Rel(srcPath, file)
 		if err != nil {
 			return err
@@ -56,6 +61,8 @@ func createTarFromFolder(ctx BuildContext, srcPath, dstPath string) (string, err
 		header.Gid = 0
 		header.Gname = "root"
 		header.Uname = "root"
+		header.PAXRecords = nil
+		header.Xattrs = nil
 
 		log.Println("adding file:", header.Name)
 
