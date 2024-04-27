@@ -1,0 +1,3 @@
+build:
+  destination-path: /usr/local/bin
+  entrypoint: /usr/local/bin/tko

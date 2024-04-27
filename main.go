@@ -10,6 +10,7 @@ import (
 	"github.com/dskiff/tko/pkg/cmd"
 
 	"github.com/alecthomas/kong"
+	kongyaml "github.com/alecthomas/kong-yaml"
 	"github.com/joho/godotenv"
 )
 
@@ -35,7 +36,8 @@ func main() {
 		ExitCleanWatcher: exitCleanWatcher,
 	}
 
-	args := kong.Parse(&cmd.CLI)
+	cli := cmd.CLI{}
+	args := kong.Parse(&cli, kong.Configuration(kongyaml.Loader, "./.tko.yaml", "./.tko.yml"))
 
 	err := args.Run(&cliContext)
 	if err != nil {

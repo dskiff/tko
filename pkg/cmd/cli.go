@@ -22,7 +22,7 @@ func (v *VersionCmd) Run(cliCtx *CliCtx) error {
 	return nil
 }
 
-var CLI struct {
+type CLI struct {
 	Version VersionCmd `cmd:"" help:"Show version."`
 
 	Build BuildCmd `cmd:"" help:"Build and publish a container image."`

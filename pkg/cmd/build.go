@@ -28,7 +28,8 @@ type BuildCmd struct {
 	Author string            `short:"a" help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
 	Labels map[string]string `short:"l" help:"Labels to apply to the image" env:"TKO_LABELS" default:"" mapsep:"," sep:"="`
 
-	Verbose bool `short:"v" help:"Enable verbose output"`
+	Tmp     string `help:"Path where tko can write temporary files. Defaults to golang's tmp logic." env:"TKO_TMP" default:""`
+	Verbose bool   `short:"v" help:"Enable verbose output"`
 }
 
 func (b *BuildCmd) Run(cliCtx *CliCtx) error {
@@ -85,6 +86,6 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		ExitCleanupWatcher: cliCtx.ExitCleanWatcher,
 		Keychain:           keychain,
 
-		TempPath: os.Getenv("TKO_TEMP_PATH"),
+		TempPath: b.Tmp,
 	}, cfg)
 }
