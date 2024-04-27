@@ -37,8 +37,8 @@ jobs:
       - name: Publish (bin)
         run: |
           tko build \
-            --annotation  "org.opencontainers.image.revision=${{ github.sha }}" \
-            --annotation  "org.opencontainers.image.version=${{ github.ref_name }}" \
+            --annotations "org.opencontainers.image.revision=${{ github.sha }}" \
+            --annotations "org.opencontainers.image.version=${{ github.ref_name }}" \
             --base-ref "scratch" \
             --target-repo "ghcr.io/dskiff/tko:bin" \
             "./dist/tko_linux_amd64_v1"
@@ -48,8 +48,8 @@ jobs:
       - name: Publish (version)
         run: |
           tko build \
-            --annotation  "org.opencontainers.image.revision=${{ github.sha }}" \
-            --annotation  "org.opencontainers.image.version=${{ github.ref_name }}" \
+            --annotations "org.opencontainers.image.revision=${{ github.sha }}" \
+            --annotations "org.opencontainers.image.version=${{ github.ref_name }}" \
             --target-repo "ghcr.io/dskiff/tko:${{ github.ref_name }}" \
             --entrypoint  "/bin/bash" \
             "./dist/tko_linux_amd64_v1"
