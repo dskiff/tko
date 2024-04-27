@@ -18,6 +18,7 @@ type TargetType int
 const (
 	REMOTE TargetType = iota
 	LOCAL_DAEMON
+	LOCAL_FILE
 )
 
 type Platform struct {
@@ -132,6 +133,8 @@ func ParseTargetType(str string) (TargetType, error) {
 		return REMOTE, nil
 	case "LOCAL_DAEMON":
 		return LOCAL_DAEMON, nil
+	case "LOCAL_FILE":
+		return LOCAL_FILE, nil
 	case "":
 		return REMOTE, nil
 	default:

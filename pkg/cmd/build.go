@@ -23,7 +23,7 @@ type BuildCmd struct {
 	Entrypoint      string `short:"e" help:"Entrypoint for the embedded artifacts" env:"TKO_ENTRYPOINT" default:"/tko-app/app"`
 
 	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
-	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON"`
+	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON,LOCAL_FILE"`
 
 	Author string `short:"a" help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
 

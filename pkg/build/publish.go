@@ -8,6 +8,7 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/google/go-containerregistry/pkg/v1/tarball"
 )
 
 func publish(ctx BuildContext, image v1.Image, target BuildSpecTarget) error {
@@ -30,6 +31,12 @@ func publish(ctx BuildContext, image v1.Image, target BuildSpecTarget) error {
 		_, err := daemon.Write(ref, image, daemon.WithContext(ctx.Context))
 		if err != nil {
 			return fmt.Errorf("failed to write image to daemon: %w", err)
+		}
+	case LOCAL_FILE:
+		log.Println("Publishing to local file...")
+		err := tarball.WriteToFile("out.tar", ref, image)
+		if err != nil {
+			return fmt.Errorf("failed to write image to file: %w", err)
 		}
 	default:
 		return fmt.Errorf("unknown target type: %d", target.Type)
