@@ -47,8 +47,8 @@ type BuildSpec struct {
 	InjectLayer BuildSpecInjectLayer
 	Target      BuildSpecTarget
 
-	Author string
-	Labels map[string]string
+	Author      string
+	Annotations map[string]string
 }
 
 type BuildContext struct {
@@ -111,13 +111,14 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 	imgCfg.Container = ""
 	imgCfg.DockerVersion = ""
 
-	if imgCfg.Config.Labels == nil {
-		imgCfg.Config.Labels = map[string]string{}
-	}
+	imgCfg.Config.Labels = map[string]string{}
 	imgCfg.Config.Labels["org.opencontainers.image.base.name"] = metadata.name
-	imgCfg.Config.Labels["org.opencontainers.image.base.digest"] = metadata.imageDigest
 
-	for k, v := range spec.Labels {
+	if metadata.imageDigest != "" {
+		imgCfg.Config.Labels["org.opencontainers.image.base.digest"] = metadata.imageDigest
+	}
+
+	for k, v := range spec.Annotations {
 		imgCfg.Config.Labels[k] = v
 	}
 

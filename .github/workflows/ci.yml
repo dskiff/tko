@@ -31,9 +31,9 @@ jobs:
       - name: Run against local docker daemon
         run: |
           go run . build \
-            -l "org.opencontainers.image.revision=${{ github.sha }}" \
-            -l "org.opencontainers.image.version=dev-${{ github.sha }}" \
-            -t "test/repo" \
+            --annotations "org.opencontainers.image.revision=${{ github.sha }}" \
+            --annotations "org.opencontainers.image.version=dev-${{ github.sha }}" \
+            --target-repo "test/repo" \
             "./dist/tko_linux_amd64_v1"
         env:
           TKO_TARGET_TYPE: LOCAL_DAEMON

@@ -37,10 +37,10 @@ jobs:
       - name: Publish (bin)
         run: |
           tko build \
-            -b "scratch" \
-            -t "ghcr.io/dskiff/tko:bin" \
-            -l "org.opencontainers.image.revision=${{ github.sha }}" \
-            -l "org.opencontainers.image.version=${{ github.ref_name }}" \
+            --annotations "org.opencontainers.image.revision=${{ github.sha }}" \
+            --annotations "org.opencontainers.image.version=${{ github.ref_name }}" \
+            --base-ref "scratch" \
+            --target-repo "ghcr.io/dskiff/tko:bin" \
             "./dist/tko_linux_amd64_v1"
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -48,11 +48,11 @@ jobs:
       - name: Publish (version)
         run: |
           tko build \
-            -l "org.opencontainers.image.revision=${{ github.sha }}" \
-            -l "org.opencontainers.image.version=${{ github.ref_name }}" \
-            -t "ghcr.io/dskiff/tko:${{ github.ref_name }}" \
-            -e "/bin/bash" \
+            --annotations "org.opencontainers.image.revision=${{ github.sha }}" \
+            --annotations "org.opencontainers.image.version=${{ github.ref_name }}" \
+            --target-repo "ghcr.io/dskiff/tko:${{ github.ref_name }}" \
+            --entrypoint  "/bin/bash" \
             "./dist/tko_linux_amd64_v1"
         env:
-          TKO_BASE_IMAGE: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
+          TKO_BASE_REF: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
           GITHUB_TOKEN: ${{ github.token }}
