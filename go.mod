@@ -7,7 +7,10 @@ require (
 	github.com/joho/godotenv v1.5.1
 )
 
-require gopkg.in/yaml.v3 v3.0.1 // indirect
+require (
+	github.com/kr/pretty v0.3.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	cloud.google.com/go/compute v1.19.3 // indirect

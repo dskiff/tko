@@ -10,7 +10,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 	"github.com/google/go-containerregistry/pkg/v1/types"
-	specsv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 
 type TargetType int
@@ -80,7 +79,6 @@ func Build(ctx BuildContext, spec BuildSpec) error {
 		MediaType: mediaType,
 		History: v1.History{
 			Created:   v1.Time{Time: unixEpoch},
-			Author:    "github.com/dskiff/tko",
 			CreatedBy: "tko build",
 		},
 	})
@@ -109,9 +107,11 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 
 	imgCfg.Created = v1.Time{Time: unixEpoch}
 	imgCfg.Author = spec.Author
+	imgCfg.Container = ""
+	imgCfg.DockerVersion = ""
 
-	imgCfg.Config.Labels[specsv1.AnnotationBaseImageName] = metadata.name
-	imgCfg.Config.Labels[specsv1.AnnotationBaseImageDigest] = metadata.imageDigest
+	imgCfg.Config.Labels["org.opencontainers.image.base.name"] = metadata.name
+	imgCfg.Config.Labels["org.opencontainers.image.base.digest"] = metadata.imageDigest
 
 	return mutate.ConfigFile(img, imgCfg)
 }

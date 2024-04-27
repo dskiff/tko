@@ -18,7 +18,7 @@ tko build --target-repo="destination/repo" ./dist
 
 tko is:
 - Simple (pull base image, add content, push to registry)
-- Low footprint (<4MiB, single static binary, no runtime deps)
+- Low footprint (~15MiB, single static binary, no runtime deps)
 - Rootless (no sudo/daemon/chroot/caps/goats blood/etc needed)
 - Reproducible (same build artifacts -> same image digest)
 
