@@ -22,9 +22,12 @@ build:
   target-repo: repo/target
 
   author: me
-  labels:
+  default-labels:
     label1: value1
     label2: value2
+  labels:
+    label3: value3
+    label4: value4
   
   tmp: /tmp-dir
   verbose: true
@@ -47,8 +50,10 @@ build:
 	assert.Equal(t, "repo/target", cli.Build.TargetRepo)
 
 	assert.Equal(t, "me", cli.Build.Author)
-	assert.Equal(t, "value1", cli.Build.Labels["label1"])
-	assert.Equal(t, "value2", cli.Build.Labels["label2"])
+	assert.Equal(t, "value1", cli.Build.DefaultLabels["label1"])
+	assert.Equal(t, "value2", cli.Build.DefaultLabels["label2"])
+	assert.Equal(t, "value3", cli.Build.Labels["label3"])
+	assert.Equal(t, "value4", cli.Build.Labels["label4"])
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)
@@ -73,8 +78,10 @@ func TestBuildArgs(t *testing.T) {
 		"-d", "/destination",
 		"-t", "repo/target",
 		"-a", "me",
-		"-l", "label1=value1",
-		"-l", "label2=value2",
+		"-L", "label1=value1",
+		"-L", "label2=value2",
+		"-l", "label3=value3",
+		"-l", "label4=value4",
 		"-T", "REMOTE",
 		"-v",
 		"--tmp", "/tmp-dir",
@@ -90,8 +97,10 @@ func TestBuildArgs(t *testing.T) {
 	assert.Equal(t, "repo/target", cli.Build.TargetRepo)
 
 	assert.Equal(t, "me", cli.Build.Author)
-	assert.Equal(t, "value1", cli.Build.Labels["label1"])
-	assert.Equal(t, "value2", cli.Build.Labels["label2"])
+	assert.Equal(t, "value1", cli.Build.DefaultLabels["label1"])
+	assert.Equal(t, "value2", cli.Build.DefaultLabels["label2"])
+	assert.Equal(t, "value3", cli.Build.Labels["label3"])
+	assert.Equal(t, "value4", cli.Build.Labels["label4"])
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)
