@@ -24,3 +24,8 @@ jobs:
 
       - name: Test
         run: go test -v ./...
+
+      - name: Run against local docker daemon
+        run: go run . -t "test/repo" "./dist/tko_linux_amd64_v1"
+        env:
+          TARGET_TYPE: LOCAL_DAEMON
