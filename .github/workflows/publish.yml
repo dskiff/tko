@@ -39,5 +39,4 @@ jobs:
             --auto-version-annotation=git \
             "./dist/tko_linux_amd64_v1"
         env:
-          TKO_BASE_REF: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
           GITHUB_TOKEN: ${{ github.token }}

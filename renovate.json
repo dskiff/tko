@@ -18,12 +18,12 @@
     {
       "customType": "regex",
       "fileMatch": [
-          "^.github/workflows/(.+).yml$"
+          "^.tko.yml$"
       ],
       "matchStrings": [
-          "TKO_BASE_REF:\\s*(?<depName>[^:\\n]+):(?<currentValue>[^@\\n]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
+          "base-ref:\\s*(?<depName>[^:\\n]+):(?<currentValue>[^@\\n]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
-      "autoReplaceStringTemplate": "TKO_BASE_REF: {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
+      "autoReplaceStringTemplate": "base-ref:{{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
       "datasourceTemplate": "docker"
     }
   ]
