@@ -8,6 +8,13 @@ require (
 )
 
 require (
+	github.com/alecthomas/kong-yaml v0.2.0
+	gotest.tools/v3 v3.0.3
+)
+
+require github.com/google/go-cmp v0.6.0 // indirect
+
+require (
 	github.com/kr/pretty v0.3.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1
 )

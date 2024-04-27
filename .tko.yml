@@ -1,0 +1,7 @@
+build:
+  destination-path: /usr/local/bin
+  entrypoint: /usr/local/bin/tko
+  default-labels:
+    org.opencontainers.image.title: tko
+    org.opencontainers.image.url: github.com/dskiff/tko
+    org.opencontainers.image.source: github.com/dskiff/tko
