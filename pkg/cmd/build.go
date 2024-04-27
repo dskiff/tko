@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -30,6 +31,9 @@ type BuildCmd struct {
 	DefaultAnnotations map[string]string `short:"A" help:"Default annotations to apply to the image" env:"TKO_DEFAULT_ANNOTATIONS" default:"" mapsep:"," sep:"="`
 	Annotations        map[string]string `short:"a" help:"Additional annotations to apply to the image. Can override default-annotations." env:"TKO_ANNOTATIONS" default:"" mapsep:"," sep:"="`
 
+	RegistryUser string `help:"Registry user. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_USER"`
+	RegistryPass string `help:"Registry password. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_PASS"`
+
 	Tmp     string `help:"Path where tko can write temporary files. Defaults to golang's tmp logic." env:"TKO_TMP" default:""`
 	Verbose bool   `short:"v" help:"Enable verbose output"`
 }
@@ -45,11 +49,21 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		return err
 	}
 
-	keychain := authn.NewMultiKeychain(
+	keychains := []authn.Keychain{
 		authn.DefaultKeychain,
 		google.Keychain,
 		github.Keychain,
-	)
+	}
+
+	if b.RegistryUser != "" && b.RegistryPass != "" {
+		k, err := newSimpleKeychain(b.RegistryUser, b.RegistryPass, b.TargetRepo)
+		if err != nil {
+			return fmt.Errorf("failed to create keychain: %w", err)
+		}
+
+		keychains = append([]authn.Keychain{k.toKeychain()}, keychains...)
+	}
+	keychain := authn.NewMultiKeychain(keychains...)
 
 	// Annotations would ideally be merged by kong, but this works too
 	annotations := make(map[string]string)
