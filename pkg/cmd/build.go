@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 
 	"gopkg.in/yaml.v3"
 
@@ -27,9 +28,10 @@ type BuildCmd struct {
 	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
 	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON,LOCAL_FILE"`
 
-	Author             string            `help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
-	DefaultAnnotations map[string]string `short:"A" help:"Default annotations to apply to the image" env:"TKO_DEFAULT_ANNOTATIONS" default:"" mapsep:"," sep:"="`
-	Annotations        map[string]string `short:"a" help:"Additional annotations to apply to the image. Can override default-annotations." env:"TKO_ANNOTATIONS" default:"" mapsep:"," sep:"="`
+	Author                string            `help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
+	DefaultAnnotations    map[string]string `short:"A" help:"Default annotations to apply to the image" env:"TKO_DEFAULT_ANNOTATIONS" default:"" mapsep:"," sep:"="`
+	Annotations           map[string]string `short:"a" help:"Additional annotations to apply to the image. Can override default-annotations." env:"TKO_ANNOTATIONS" default:"" mapsep:"," sep:"="`
+	AutoVersionAnnotation string            `help:"Automatically version annotations" env:"TKO_AUTO_VERSION_ANNOTATION" default:"none" enum:"git,none"`
 
 	RegistryUser string `help:"Registry user. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_USER"`
 	RegistryPass string `help:"Registry password. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_PASS"`
@@ -39,6 +41,8 @@ type BuildCmd struct {
 }
 
 func (b *BuildCmd) Run(cliCtx *CliCtx) error {
+	log.Printf("tko %s (%s) built on %s\n", cliCtx.TkoBuildVersion, cliCtx.TkoBuildCommit, cliCtx.TkoBuildDate)
+
 	targetType, err := build.ParseTargetType(b.TargetType)
 	if err != nil {
 		return err
@@ -65,8 +69,45 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 	}
 	keychain := authn.NewMultiKeychain(keychains...)
 
-	// Annotations would ideally be merged by kong, but this works too
 	annotations := make(map[string]string)
+	if b.AutoVersionAnnotation == "git" {
+		gitInfo, err := getGitInfo(b.SourcePath)
+		if err != nil {
+			return fmt.Errorf("failed to get git info: %w", err)
+		}
+
+		gitInfoStr, err := yaml.Marshal(gitInfo)
+		if err != nil {
+			return fmt.Errorf("failed to marshal git info: %w", err)
+		}
+		log.Print("Found git info:", "\n"+string(gitInfoStr))
+
+		if len(gitInfo.Tag) > 1 {
+			return fmt.Errorf("multiple tags found for commit %s: %v", gitInfo.CommitHash, gitInfo.Tag)
+		}
+
+		revision := gitInfo.CommitHash
+		if gitInfo.Dirty {
+			revision += "-dirty"
+		}
+
+		gitVersion := "snapshot-" + gitInfo.CommitHash
+		if len(gitInfo.Tag) == 1 {
+			gitVersion = gitInfo.Tag[0]
+			isValid := regexp.MustCompile(`^\d+\.\d+\.\d+$`).MatchString(gitVersion)
+			if !isValid {
+				return fmt.Errorf("tag %s is not a valid version", gitVersion)
+			}
+		}
+		if gitInfo.Dirty {
+			gitVersion += "-dirty"
+		}
+
+		annotations["org.opencontainers.image.revision"] = revision
+		annotations["org.opencontainers.image.version"] = gitVersion
+	}
+
+	// Annotations would ideally be merged by kong, but this works too
 	for k, v := range b.DefaultAnnotations {
 		annotations[k] = v
 	}
@@ -97,8 +138,7 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		return err
 	}
 
-	log.Printf("tko %s (%s) built on %s\n", cliCtx.TkoBuildVersion, cliCtx.TkoBuildCommit, cliCtx.TkoBuildDate)
-	log.Println("Build configuration:", "\n"+string(out))
+	log.Print("Build configuration:", "\n"+string(out))
 
 	// Enable go-containerregistry logging
 	logs.Warn.SetOutput(os.Stderr)
