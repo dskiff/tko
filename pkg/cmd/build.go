@@ -14,7 +14,7 @@ import (
 )
 
 type BuildCmd struct {
-	BaseRef string `short:"b" help:"Base image reference" env:"TKO_BASE_IMAGE" default:"ubuntu:jammy@latest"`
+	BaseRef string `short:"b" help:"Base image reference" env:"TKO_BASE_IMAGE" default:"ubuntu:jammy"`
 
 	Platform string `short:"p" help:"Platform to build for" env:"TKO_PLATFORM" default:"linux/amd64"`
 
@@ -24,6 +24,8 @@ type BuildCmd struct {
 
 	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
 	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON"`
+
+	Author string `short:"a" help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
 
 	Verbose bool `short:"v" help:"Enable verbose output"`
 }
@@ -57,6 +59,8 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 			Repo: b.TargetRepo,
 			Type: targetType,
 		},
+
+		Author: b.Author,
 	}
 
 	out, err := yaml.Marshal(cfg)
