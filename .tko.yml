@@ -2,6 +2,7 @@ build:
   base-ref: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
   destination-path: /usr/local/bin
   entrypoint: /usr/local/bin/tko
+  auto-version-annotation: git
   default-annotations:
     org.opencontainers.image.title: tko
     org.opencontainers.image.url: github.com/dskiff/tko

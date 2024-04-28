@@ -36,7 +36,6 @@ jobs:
           tko build \
             --target-repo "ghcr.io/dskiff/tko:latest" \
             --entrypoint  "/bin/bash" \
-            --auto-version-annotation=git \
             "./dist/tko_linux_amd64_v1"
         env:
           GITHUB_TOKEN: ${{ github.token }}
