@@ -20,7 +20,7 @@ type BuildCmd struct {
 
 	Platform string `short:"p" help:"Platform to build for" env:"TKO_PLATFORM" default:"linux/amd64"`
 
-	SourcePath       string `arg:"" name:"path" help:"Path to artifacts to embed" type:"path" env:"TKO_SOURCE_PATH"`
+	SourcePath       string `arg:"" help:"Path to artifacts to embed" type:"path" env:"TKO_SOURCE_PATH"`
 	DestinationPath  string `short:"d" help:"Path to embed artifacts in" env:"TKO_DEST_PATH" default:"/tko-app"`
 	DestinationChown bool   `help:"Whether to chown the destination path to root:root" default:"true"`
 	Entrypoint       string `short:"e" help:"Entrypoint for the embedded artifacts" env:"TKO_ENTRYPOINT" default:"/tko-app/app"`
