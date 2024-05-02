@@ -23,7 +23,7 @@
       "matchStrings": [
           "base-ref:\\s*(?<depName>[^:\\n]+):(?<currentValue>[^@\\n]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
-      "autoReplaceStringTemplate": "base-ref:{{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
+      "autoReplaceStringTemplate": "base-ref: {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
       "datasourceTemplate": "docker"
     }
   ]
