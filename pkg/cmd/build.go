@@ -23,7 +23,7 @@ type BuildCmd struct {
 	SourcePath       string `arg:"" help:"Path to artifacts to embed" type:"path" env:"TKO_SOURCE_PATH"`
 	DestinationPath  string `short:"d" help:"Path to embed artifacts in" env:"TKO_DEST_PATH" default:"/tko-app"`
 	DestinationChown bool   `help:"Whether to chown the destination path to root:root" default:"true"`
-	Entrypoint       string `short:"e" help:"Entrypoint for the embedded artifacts" env:"TKO_ENTRYPOINT" default:"/tko-app/app"`
+	Entrypoint       string `help:"Entrypoint for the embedded artifacts" env:"TKO_ENTRYPOINT" default:"/tko-app/app"`
 
 	TargetRepo string `short:"t" help:"Target repository" env:"TKO_TARGET_REPO" required:"true"`
 	TargetType string `short:"T" help:"Target type" env:"TKO_TARGET_TYPE" default:"REMOTE" enum:"REMOTE,LOCAL_DAEMON,LOCAL_FILE"`
@@ -32,6 +32,7 @@ type BuildCmd struct {
 	DefaultAnnotations    map[string]string `short:"A" help:"Default annotations to apply to the image" env:"TKO_DEFAULT_ANNOTATIONS" default:"" mapsep:"," sep:"="`
 	Annotations           map[string]string `short:"a" help:"Additional annotations to apply to the image. Can override default-annotations." env:"TKO_ANNOTATIONS" default:"" mapsep:"," sep:"="`
 	AutoVersionAnnotation string            `help:"Automatically version annotations" env:"TKO_AUTO_VERSION_ANNOTATION" default:"none" enum:"git,none"`
+	Env                   map[string]string `short:"e" help:"Environment variables to set in the build" env:"TKO_ENV_VARS" default:"" mapsep:"," sep:"="`
 
 	RegistryUser string `help:"Registry user. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_USER"`
 	RegistryPass string `help:"Registry password. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_PASS"`
@@ -131,6 +132,7 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 
 		Author:      b.Author,
 		Annotations: annotations,
+		Env:         b.Env,
 	}
 
 	out, err := yaml.Marshal(cfg)

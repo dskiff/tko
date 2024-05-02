@@ -29,6 +29,9 @@ build:
   annotations:
     label3: value3
     label4: value4
+  env:
+    VAR1: value1
+    VAR2: value2
   
   tmp: /tmp-dir
   verbose: true
@@ -56,6 +59,8 @@ build:
 	assert.Equal(t, "value2", cli.Build.DefaultAnnotations["label2"])
 	assert.Equal(t, "value3", cli.Build.Annotations["label3"])
 	assert.Equal(t, "value4", cli.Build.Annotations["label4"])
+	assert.Equal(t, "value1", cli.Build.Env["VAR1"])
+	assert.Equal(t, "value2", cli.Build.Env["VAR2"])
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)
@@ -76,7 +81,7 @@ func TestBuildArgs(t *testing.T) {
 	_, err := parser.Parse([]string{"build", "/source",
 		"-b", "base-image@sha256:1234",
 		"-p", "custom-os/arch-variant",
-		"-e", "/entrypoint",
+		"--entrypoint", "/entrypoint",
 		"-d", "/destination",
 		"--destination-chown=false",
 		"-t", "repo/target",
@@ -85,6 +90,8 @@ func TestBuildArgs(t *testing.T) {
 		"-A", "label2=value2",
 		"-a", "label3=value3",
 		"-a", "label4=value4",
+		"-e", "VAR1=value1",
+		"-e", "VAR2=value2",
 		"-T", "REMOTE",
 		"-v",
 		"--tmp", "/tmp-dir",
@@ -105,6 +112,8 @@ func TestBuildArgs(t *testing.T) {
 	assert.Equal(t, "value2", cli.Build.DefaultAnnotations["label2"])
 	assert.Equal(t, "value3", cli.Build.Annotations["label3"])
 	assert.Equal(t, "value4", cli.Build.Annotations["label4"])
+	assert.Equal(t, "value1", cli.Build.Env["VAR1"])
+	assert.Equal(t, "value2", cli.Build.Env["VAR2"])
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)

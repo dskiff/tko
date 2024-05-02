@@ -50,6 +50,7 @@ type BuildSpec struct {
 
 	Author      string
 	Annotations map[string]string
+	Env         map[string]string
 }
 
 type BuildContext struct {
@@ -97,11 +98,11 @@ func Build(ctx BuildContext, spec BuildSpec) error {
 }
 
 func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.Image, error) {
-	imgCfg, err := img.ConfigFile()
+	initImgCfg, err := img.ConfigFile()
 	if err != nil {
 		return nil, err
 	}
-	imgCfg = imgCfg.DeepCopy()
+	imgCfg := initImgCfg.DeepCopy()
 
 	imgCfg.Config.WorkingDir = spec.InjectLayer.DestinationPath
 	imgCfg.Config.Entrypoint = []string{spec.InjectLayer.Entrypoint}
@@ -111,6 +112,12 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 	imgCfg.Author = spec.Author
 	imgCfg.Container = ""
 	imgCfg.DockerVersion = ""
+
+	imgCfg.Config.Env = []string{}
+	imgCfg.Config.Env = append(imgCfg.Config.Env, initImgCfg.Config.Env...)
+	for k, v := range spec.Env {
+		imgCfg.Config.Env = append(imgCfg.Config.Env, k+"="+v)
+	}
 
 	imgCfg.Config.Labels = map[string]string{}
 	imgCfg.Config.Labels["org.opencontainers.image.base.name"] = metadata.name
