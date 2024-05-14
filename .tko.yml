@@ -1,5 +1,5 @@
 build:
-  base-ref: debian:bookworm-slim@sha256:155280b00ee0133250f7159b567a07d7cd03b1645714c3a7458b2287b0ca83cb
+  base-ref: debian:bookworm-slim@sha256:804194b909ef23fb995d9412c9378fb3505fe2427b70f3cc425339e48a828fca
   destination-path: /usr/local/bin
   entrypoint: /usr/local/bin/tko
   auto-version-annotation: git
