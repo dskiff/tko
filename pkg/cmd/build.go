@@ -31,7 +31,7 @@ type BuildCmd struct {
 	Author                string            `help:"Author of the build" env:"TKO_AUTHOR" default:"github.com/dskiff/tko"`
 	DefaultAnnotations    map[string]string `short:"A" help:"Default annotations to apply to the image" env:"TKO_DEFAULT_ANNOTATIONS" default:"" mapsep:"," sep:"="`
 	Annotations           map[string]string `short:"a" help:"Additional annotations to apply to the image. Can override default-annotations." env:"TKO_ANNOTATIONS" default:"" mapsep:"," sep:"="`
-	AutoVersionAnnotation string            `help:"Automatically version annotations" env:"TKO_AUTO_VERSION_ANNOTATION" default:"none" enum:"git,none"`
+	AutoVersionAnnotation string            `help:"Automatically apply version annotations" env:"TKO_AUTO_VERSION_ANNOTATION" default:"none" enum:"git,none"`
 	Env                   map[string]string `short:"e" help:"Environment variables to set in the build" env:"TKO_ENV_VARS" default:"" mapsep:"," sep:"="`
 
 	RegistryUser string `help:"Registry user. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_USER"`
