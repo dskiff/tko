@@ -19,17 +19,19 @@ tko build --target-repo="destination/repo" ./dist
 tko is:
 - Simple (pull base image, add content, push to registry)
 - Low footprint (~15MiB, single static binary, no runtime deps)
-- Rootless (no sudo/daemon/chroot/caps/goats blood/etc needed)
+- Truly Rootless (no sudo/daemon/chroot/caps/goats blood/etc needed)
 - Reproducible (same base + build artifacts -> same image digest)
 
-tko is NOT a replacement for generic docker build (or buildah, kaniko, etc). It cannot run a Dockerfile. It combines your build artifacts with a base image and modifies metadata. That's it. For me, this was enough for the majority of my container builds, but YMMV.
+In short: tko takes `(base image) + (your build artifacts) + (metadata)` and pushes it to your repo.
+
+tko is NOT a full replacement for docker build (or buildah, kaniko, etc). Rather than running a Dockerfile in an isolated container, you need to build your artifacts in your native build environment and tko combines your artifacts with a base image. That's it. For me, this was enough for the majority of my container builds, but YMMV.
  
 ## Why?
 
 Constructing containers inside of a constrained environment stinks (e.g. a k8s pod with a reasonable PSA). While there are a number of existing solutions, they all have substantial tradeoffs.
 
 - DinD has considerable security implications, and depending on your environment may be a non-starter.
-- DinK avoids exposing your daemon directly, but introduces some fun new security issues. Additionally, it adds more moving pieces and has some resource/performance issues (e.g. RWX PVCs).
+- DinK avoids exposing your daemon directly, but introduces some fun new security issues. Additionally, it adds more moving pieces and has some resource/performance issues (e.g. PVC per runner).
 - I have never gotten [buildah](https://github.com/containers/buildah) to work well in constrained environments (e.g. requiring something like `CAP_SETUID`). That being said, both it and kaniko _do more_ than tko. Much more. 
 - [kaniko](https://github.com/GoogleContainerTools/kaniko) only supports being run in the published container. I've actually gotten the most mileage with kaniko in constrained environments (other than ko), but it often came with hacks or quirks to make it work how I wanted it to.
 
