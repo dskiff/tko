@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: actions/setup-go@3d10edb4c2d9ac9923e94a5ec73fa063078e9234
+        uses: actions/setup-go@5a083d0e9a84784eb32078397cf5459adecb4c40
 
       - name: Run GoReleaser (build)
         uses: goreleaser/goreleaser-action@d28c98212f8e972575198214e0c3f2dbca157dc5
