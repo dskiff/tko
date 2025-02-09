@@ -9,7 +9,7 @@ require (
 
 require (
 	github.com/alecthomas/kong-yaml v0.2.0
-	gotest.tools/v3 v3.5.1
+	gotest.tools/v3 v3.5.2
 )
 
 require (
