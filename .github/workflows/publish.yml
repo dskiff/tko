@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b
 
       - name: Run GoReleaser (build)
-        uses: goreleaser/goreleaser-action@d28c98212f8e972575198214e0c3f2dbca157dc5
+        uses: goreleaser/goreleaser-action@90a3faa9d0182683851fbfa97ca1a2cb983bfca3
         with:
           distribution: goreleaser
           version: latest
