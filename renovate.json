@@ -9,7 +9,9 @@
   ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["digest"],
+      "matchUpdateTypes": [
+        "digest"
+      ],
       "automerge": true,
       "autoApprove": true
     }
@@ -17,11 +19,11 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-          "^.tko.yml$"
+      "managerFilePatterns": [
+        "/^.tko.yml$/"
       ],
       "matchStrings": [
-          "base-ref:\\s*(?<depName>[^:\\n]+):(?<currentValue>[^@\\n]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
+        "base-ref:\\s*(?<depName>[^:\\n]+):(?<currentValue>[^@\\n]+)(@(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
       "autoReplaceStringTemplate": "base-ref: {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
       "datasourceTemplate": "docker"
