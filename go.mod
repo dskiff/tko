@@ -3,7 +3,7 @@ module github.com/dskiff/tko
 go 1.23.3
 
 require (
-	github.com/google/go-containerregistry v0.20.3
+	github.com/google/go-containerregistry v0.20.6
 	github.com/joho/godotenv v1.5.1
 )
 
