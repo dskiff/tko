@@ -95,6 +95,7 @@ func TestBuildArgs(t *testing.T) {
 		"-T", "REMOTE",
 		"-v",
 		"--tmp", "/tmp-dir",
+		"--run-as", "uid:gid",
 	})
 	assert.NilError(t, err)
 
@@ -114,6 +115,7 @@ func TestBuildArgs(t *testing.T) {
 	assert.Equal(t, "value4", cli.Build.Annotations["label4"])
 	assert.Equal(t, "value1", cli.Build.Env["VAR1"])
 	assert.Equal(t, "value2", cli.Build.Env["VAR2"])
+	assert.Equal(t, "uid:gid", *cli.Build.RunAs)
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)

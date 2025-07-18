@@ -51,6 +51,7 @@ type BuildSpec struct {
 	Author      string
 	Annotations map[string]string
 	Env         map[string]string
+	RunAs       *string
 }
 
 type BuildContext struct {
@@ -112,6 +113,10 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 	imgCfg.Author = spec.Author
 	imgCfg.Container = ""
 	imgCfg.DockerVersion = ""
+
+	if spec.RunAs != nil {
+		imgCfg.Config.User = *spec.RunAs
+	}
 
 	imgCfg.Config.Env = []string{}
 	imgCfg.Config.Env = append(imgCfg.Config.Env, initImgCfg.Config.Env...)

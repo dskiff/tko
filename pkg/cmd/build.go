@@ -33,6 +33,7 @@ type BuildCmd struct {
 	Annotations           map[string]string `short:"a" help:"Additional annotations to apply to the image. Can override default-annotations." env:"TKO_ANNOTATIONS" default:"" mapsep:"," sep:"="`
 	AutoVersionAnnotation string            `help:"Automatically apply version annotations" env:"TKO_AUTO_VERSION_ANNOTATION" default:"none" enum:"git,none"`
 	Env                   map[string]string `short:"e" help:"Environment variables to set in the build" env:"TKO_ENV_VARS" default:"" mapsep:"," sep:"="`
+	RunAs                 *string           `help:"Override the user/group to run as" env:"TKO_RUN_AS"`
 
 	RegistryUser string `help:"Registry user. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_USER"`
 	RegistryPass string `help:"Registry password. Used for target registry url. You can use standard docker config for more complex auth." env:"TKO_REGISTRY_PASS"`
@@ -133,6 +134,7 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 		Author:      b.Author,
 		Annotations: annotations,
 		Env:         b.Env,
+		RunAs:       b.RunAs,
 	}
 
 	out, err := yaml.Marshal(cfg)
