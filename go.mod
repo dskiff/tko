@@ -1,8 +1,6 @@
 module github.com/dskiff/tko
 
-go 1.24.0
-
-toolchain go1.26.1
+go 1.26.1
 
 require (
 	github.com/google/go-containerregistry v0.20.7

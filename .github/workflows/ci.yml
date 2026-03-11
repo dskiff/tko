@@ -14,6 +14,8 @@ jobs:
 
       - name: Setup Go
         uses: actions/setup-go@27fdb267c15a8835f1ead03dfa07f89be2bb741a
+        with:
+          go-version-file: "go.mod"
 
       - name: Run GoReleaser (build)
         uses: goreleaser/goreleaser-action@ec59f474b9834571250b370d4735c50f8e2d1e29 # v7
