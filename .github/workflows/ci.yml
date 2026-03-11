@@ -24,8 +24,19 @@ jobs:
           version: latest
           args: build --snapshot
 
-      - name: Test
-        run: go test -v ./...
+      - run: go fmt ./...
+
+      - run: go fix ./...
+
+      - name: verify no changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "Code is not formatted or has go fix changes. Please run 'go fmt' and 'go fix' and commit the changes."
+            git status
+            exit 1
+          fi
+
+      - run: go test -v ./...
 
       - name: Version
         run: go run . version

@@ -3,6 +3,7 @@ package build
 import (
 	"context"
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/authn"
@@ -131,9 +132,7 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 		imgCfg.Config.Labels["org.opencontainers.image.base.digest"] = metadata.imageDigest
 	}
 
-	for k, v := range spec.Annotations {
-		imgCfg.Config.Labels[k] = v
-	}
+	maps.Copy(imgCfg.Config.Labels, spec.Annotations)
 
 	return mutate.ConfigFile(img, imgCfg)
 }
