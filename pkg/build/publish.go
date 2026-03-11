@@ -11,6 +11,29 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
 )
 
+func publishIndex(ctx BuildContext, index v1.ImageIndex, target BuildSpecTarget) error {
+	ref, err := name.NewTag(target.Repo)
+	if err != nil {
+		return fmt.Errorf("failed to parse target repo: %w", err)
+	}
+
+	log.Println("Publishing multi-platform index to remote...")
+
+	err = remote.WriteIndex(ref, index, remote.WithContext(ctx.Context),
+		remote.WithAuthFromKeychain(ctx.Keychain))
+	if err != nil {
+		return fmt.Errorf("failed to write index to remote: %w", err)
+	}
+
+	digest, err := index.Digest()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve index digest: %w", err)
+	}
+	log.Printf("Pushed: %s", ref.Context().Digest(digest.String()))
+
+	return nil
+}
+
 func publish(ctx BuildContext, image v1.Image, target BuildSpecTarget) error {
 	ref, err := name.NewTag(target.Repo)
 	if err != nil {

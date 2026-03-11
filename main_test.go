@@ -15,7 +15,7 @@ func TestYamlBasic(t *testing.T) {
 build:
   base-ref: base-image@sha256:1234
 
-  platform: custom-os/arch-variant
+  platforms: custom-os/arch-variant
 
   entrypoint: /entrypoint
   destination-path: /destination
@@ -32,7 +32,7 @@ build:
   env:
     VAR1: value1
     VAR2: value2
-  
+
   tmp: /tmp-dir
   verbose: true
 `
@@ -47,7 +47,7 @@ build:
 
 	assert.Equal(t, "base-image@sha256:1234", cli.Build.BaseRef)
 
-	assert.Equal(t, "custom-os/arch-variant", cli.Build.Platform)
+	assert.Equal(t, "custom-os/arch-variant", cli.Build.Platforms)
 
 	assert.Equal(t, "/entrypoint", cli.Build.Entrypoint)
 	assert.Equal(t, "/destination", cli.Build.DestinationPath)
@@ -64,6 +64,25 @@ build:
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)
+}
+
+func TestYamlDeprecatedPlatform(t *testing.T) {
+	yaml := `
+build:
+  base-ref: base-image@sha256:1234
+  platform: custom-os/arch-variant
+  target-repo: repo/target
+`
+
+	r, err := kongyaml.Loader(strings.NewReader(yaml))
+	assert.NilError(t, err)
+
+	cli := cmd.CLI{}
+	parser := mustNew(t, &cli, kong.Resolvers(r))
+	_, err = parser.Parse([]string{"build", "/source"})
+	assert.NilError(t, err)
+
+	assert.Equal(t, "custom-os/arch-variant", cli.Build.Platform)
 }
 
 func TestVersionArgs(t *testing.T) {
@@ -101,7 +120,8 @@ func TestBuildArgs(t *testing.T) {
 
 	assert.Equal(t, "base-image@sha256:1234", cli.Build.BaseRef)
 
-	assert.Equal(t, "custom-os/arch-variant", cli.Build.Platform)
+	// -p now maps to --platforms
+	assert.Equal(t, "custom-os/arch-variant", cli.Build.Platforms)
 
 	assert.Equal(t, "/entrypoint", cli.Build.Entrypoint)
 	assert.Equal(t, "/destination", cli.Build.DestinationPath)
@@ -119,6 +139,49 @@ func TestBuildArgs(t *testing.T) {
 
 	assert.Equal(t, "/tmp-dir", cli.Build.Tmp)
 	assert.Equal(t, true, cli.Build.Verbose)
+}
+
+func TestBuildArgsMultiPlatform(t *testing.T) {
+	cli := cmd.CLI{}
+	parser := mustNew(t, &cli)
+	_, err := parser.Parse([]string{"build", "/source",
+		"-p", "linux/amd64,linux/arm64",
+		"-t", "repo/target",
+	})
+	assert.NilError(t, err)
+
+	assert.Equal(t, "linux/amd64,linux/arm64", cli.Build.Platforms)
+}
+
+func TestBuildArgsDeprecatedPlatformFlag(t *testing.T) {
+	cli := cmd.CLI{}
+	parser := mustNew(t, &cli)
+	_, err := parser.Parse([]string{"build", "/source",
+		"--platform", "linux/arm64",
+		"-t", "repo/target",
+	})
+	assert.NilError(t, err)
+
+	assert.Equal(t, "linux/arm64", cli.Build.Platform)
+}
+
+func TestYamlMultiPlatform(t *testing.T) {
+	yaml := `
+build:
+  base-ref: ubuntu:jammy
+  platforms: linux/amd64,linux/arm64
+  target-repo: repo/target
+`
+
+	r, err := kongyaml.Loader(strings.NewReader(yaml))
+	assert.NilError(t, err)
+
+	cli := cmd.CLI{}
+	parser := mustNew(t, &cli, kong.Resolvers(r))
+	_, err = parser.Parse([]string{"build", "/source"})
+	assert.NilError(t, err)
+
+	assert.Equal(t, "linux/amd64,linux/arm64", cli.Build.Platforms)
 }
 
 func mustNew(t *testing.T, cli any, options ...kong.Option) *kong.Kong {

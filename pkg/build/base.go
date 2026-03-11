@@ -76,7 +76,10 @@ func getDigestForPlatform(index v1.ImageIndex, platform Platform) (v1.Hash, erro
 
 	// Find the manifest for the platform
 	for _, m := range manifest.Manifests {
-		if m.Platform.Architecture == platform.Arch && m.Platform.OS == platform.OS {
+		if m.Platform == nil {
+			continue
+		}
+		if m.Platform.OS == platform.OS && m.Platform.Architecture == platform.Arch && m.Platform.Variant == platform.Variant {
 			return m.Digest, nil
 		}
 	}
