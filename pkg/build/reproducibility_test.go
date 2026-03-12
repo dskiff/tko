@@ -278,11 +278,11 @@ func TestReproducibleBuild_WithAnnotationsAndEnv(t *testing.T) {
 		"org.opencontainers.image.vendor":  "test-vendor",
 	}
 	spec.Env = map[string]string{
-		"APP_ENV":  "production",
-		"APP_PORT": "8080",
-		"APP_HOST": "0.0.0.0",
+		"APP_ENV":   "production",
+		"APP_PORT":  "8080",
+		"APP_HOST":  "0.0.0.0",
 		"LOG_LEVEL": "info",
-		"DEBUG":    "false",
+		"DEBUG":     "false",
 	}
 
 	// Build multiple times to catch non-deterministic map iteration
