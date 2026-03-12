@@ -283,8 +283,9 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 
 	imgCfg.Config.Env = []string{}
 	imgCfg.Config.Env = append(imgCfg.Config.Env, initImgCfg.Config.Env...)
-	for k, v := range spec.Env {
-		imgCfg.Config.Env = append(imgCfg.Config.Env, k+"="+v)
+	envKeys := slices.Sorted(maps.Keys(spec.Env))
+	for _, k := range envKeys {
+		imgCfg.Config.Env = append(imgCfg.Config.Env, k+"="+spec.Env[k])
 	}
 
 	imgCfg.Config.Labels = map[string]string{}

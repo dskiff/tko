@@ -8,10 +8,11 @@ No root or sudo.
 drop ALL `capabilities` to your hearts content.
 
 ```
-# Perform build, output to ./dist
-# Provide credentials using docker config, GITHUB_TOKEN, etc
+# Compile and store output in ./build-artifacts
+your-build-tool build --output ./build-artifacts
 
-tko build --target-repo="destination/repo" ./dist
+# Take compiled output and add it to a base image, push to remote repo
+tko build --target-repo="destination/repo" ./build-artifacts
 ```
 
 ## What?
@@ -73,6 +74,7 @@ build:
 - run: tko build "./out"
   env:
     TKO_BASE_REF: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
+    TKO_TARGET_REPO: ghcr.io/${{ github.repository }}
     GITHUB_TOKEN: ${{ github.token }}
 ```
 
@@ -90,8 +92,41 @@ build:
 - run: tko build "./dist"
   env:
     TKO_BASE_REF: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
+    TKO_TARGET_REPO: ghcr.io/${{ github.repository }}
     GITHUB_TOKEN: ${{ github.token }}
 ```
+
+### Multi-Platform Builds
+
+tko can build multi-platform images (OCI image indexes) by organizing artifacts per platform under the source directory:
+
+```
+dist/
+├── linux/
+│   ├── amd64/
+│   │   └── app
+│   └── arm64/
+│       └── app
+```
+
+Then specify multiple platforms:
+
+```
+tko build --target-repo="destination/repo" --platforms="linux/amd64,linux/arm64" ./dist
+```
+
+Or via environment variables:
+
+```
+- run: tko build "./dist"
+  env:
+    TKO_BASE_REF: ubuntu:jammy@sha256:6d7b5d3317a71adb5e175640150e44b8b9a9401a7dd394f44840626aff9fa94d
+    TKO_TARGET_REPO: ghcr.io/${{ github.repository }}
+    TKO_PLATFORMS: linux/amd64,linux/arm64
+    GITHUB_TOKEN: ${{ github.token }}
+```
+
+Multi-platform builds push an OCI image index to the remote registry. Each platform can optionally override the base image, entrypoint, env vars, and user via the `.tko.yml` config file.
 
 ## Other Options
 
