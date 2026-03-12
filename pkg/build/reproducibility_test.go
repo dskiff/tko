@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/google/go-containerregistry/pkg/authn"
@@ -192,13 +193,7 @@ func TestReproducibleBuild_ImageConfig(t *testing.T) {
 		t.Fatalf("base.name label = %q, want scratch", cfg.Config.Labels["org.opencontainers.image.base.name"])
 	}
 
-	foundEnv := false
-	for _, e := range cfg.Config.Env {
-		if e == "FOO=bar" {
-			foundEnv = true
-			break
-		}
-	}
+	foundEnv := slices.Contains(cfg.Config.Env, "FOO=bar")
 	if !foundEnv {
 		t.Fatalf("expected FOO=bar in env, got %v", cfg.Config.Env)
 	}
@@ -287,7 +282,7 @@ func TestReproducibleBuild_WithAnnotationsAndEnv(t *testing.T) {
 
 	// Build multiple times to catch non-deterministic map iteration
 	var firstDigest string
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		img, err := buildImage(ctx, spec)
 		if err != nil {
 			t.Fatalf("build %d failed: %v", i, err)
