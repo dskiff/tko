@@ -322,7 +322,7 @@ func ParsePlatformSpecs(str string) ([]PlatformSpec, error) {
 	seen := make(map[string]bool)
 	var specs []PlatformSpec
 
-	for _, raw := range strings.Split(str, ",") {
+	for raw := range strings.SplitSeq(str, ",") {
 		raw = strings.TrimSpace(raw)
 		if raw == "" {
 			continue
