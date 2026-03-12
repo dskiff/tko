@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"maps"
 	"os"
 	"regexp"
 
@@ -110,12 +111,8 @@ func (b *BuildCmd) Run(cliCtx *CliCtx) error {
 	}
 
 	// Annotations would ideally be merged by kong, but this works too
-	for k, v := range b.DefaultAnnotations {
-		annotations[k] = v
-	}
-	for k, v := range b.Annotations {
-		annotations[k] = v
-	}
+	maps.Copy(annotations, b.DefaultAnnotations)
+	maps.Copy(annotations, b.Annotations)
 
 	cfg := build.BuildSpec{
 		BaseRef: b.BaseRef,
