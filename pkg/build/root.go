@@ -222,12 +222,8 @@ func resolvePlatformSpec(top MultiPlatformBuildSpec, ps PlatformSpec) BuildSpec 
 	}
 
 	env := make(map[string]string)
-	for k, v := range top.Env {
-		env[k] = v
-	}
-	for k, v := range ps.Env {
-		env[k] = v
-	}
+	maps.Copy(env, top.Env)
+	maps.Copy(env, ps.Env)
 
 	return BuildSpec{
 		BaseRef: baseRef,
