@@ -156,10 +156,6 @@ func Build(ctx BuildContext, spec BuildSpec) error {
 
 // BuildMultiPlatform builds images for multiple platforms and publishes a manifest list.
 func BuildMultiPlatform(ctx BuildContext, spec MultiPlatformBuildSpec) error {
-	if spec.Target.Type != REMOTE {
-		return fmt.Errorf("multi-platform builds only support REMOTE targets")
-	}
-
 	if err := validatePlatformSources(spec); err != nil {
 		return err
 	}
@@ -168,6 +164,10 @@ func BuildMultiPlatform(ctx BuildContext, spec MultiPlatformBuildSpec) error {
 	if len(spec.Platforms) == 1 {
 		resolved := resolvePlatformSpec(spec, spec.Platforms[0])
 		return Build(ctx, resolved)
+	}
+
+	if spec.Target.Type != REMOTE {
+		return fmt.Errorf("multi-platform builds only support REMOTE targets")
 	}
 
 	var addenda []mutate.IndexAddendum
