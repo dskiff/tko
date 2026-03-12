@@ -307,10 +307,10 @@ func TestReproducibleBuild_WithAnnotationsAndEnv(t *testing.T) {
 func TestReproducibleBuild_MultipleFilesAndDirs(t *testing.T) {
 	ctx := newTestBuildContext(t)
 	srcDir := createTestSourceDir(t, map[string]string{
-		"bin/mybin":           "#!/bin/sh\necho hello",
-		"config/app.yml":      "app:\n  port: 8080\n",
-		"config/logging.yml":  "level: info\n",
-		"static/index.html":   "<html><body>hello</body></html>",
+		"bin/mybin":          "#!/bin/sh\necho hello",
+		"config/app.yml":     "app:\n  port: 8080\n",
+		"config/logging.yml": "level: info\n",
+		"static/index.html":  "<html><body>hello</body></html>",
 	})
 	spec := newScratchBuildSpec(srcDir)
 
