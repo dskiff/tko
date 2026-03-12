@@ -38,7 +38,7 @@ func TestParsePlatformBackwardCompat(t *testing.T) {
 }
 
 func TestParsePlatformInvalid(t *testing.T) {
-	cases := []string{"linux", "a/b/c/d", "", "///"}
+	cases := []string{"linux", "a/b/c/d", "", "///", "a//b", "/linux", "linux/"}
 	for _, c := range cases {
 		_, err := ParsePlatform(c)
 		if err == nil {

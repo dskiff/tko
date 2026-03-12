@@ -303,6 +303,11 @@ func ParsePlatform(str string) (Platform, error) {
 	if len(parts) < 2 || len(parts) > 3 {
 		return Platform{}, fmt.Errorf("invalid platform string: %s (expected os/arch or os/arch/variant)", str)
 	}
+	for _, part := range parts {
+		if part == "" {
+			return Platform{}, fmt.Errorf("invalid platform string: %s (empty segment)", str)
+		}
+	}
 	p := Platform{OS: parts[0], Arch: parts[1]}
 	if len(parts) == 3 {
 		p.Variant = parts[2]
