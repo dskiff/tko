@@ -1,9 +1,12 @@
 package build
 
 import (
+	"strings"
 	"testing"
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"github.com/google/go-containerregistry/pkg/v1/empty"
+	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 )
 
@@ -87,5 +90,48 @@ func TestGetDigestForPlatformVariantMismatch(t *testing.T) {
 	_, err := getDigestForPlatform(idx, Platform{OS: "linux", Arch: "arm", Variant: "v7"})
 	if err == nil {
 		t.Fatal("expected error for variant mismatch")
+	}
+}
+
+func imageWithPlatform(t *testing.T, p Platform) v1.Image {
+	t.Helper()
+	cfg, err := empty.Image.ConfigFile()
+	if err != nil {
+		t.Fatalf("get empty config: %v", err)
+	}
+	cfg = cfg.DeepCopy()
+	cfg.OS = p.OS
+	cfg.Architecture = p.Arch
+	cfg.Variant = p.Variant
+	img, err := mutate.ConfigFile(empty.Image, cfg)
+	if err != nil {
+		t.Fatalf("set config: %v", err)
+	}
+	return img
+}
+
+func TestVerifyImagePlatformMatches(t *testing.T) {
+	p := Platform{OS: "linux", Arch: "amd64"}
+	if err := verifyImagePlatform(imageWithPlatform(t, p), p); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestVerifyImagePlatformArchMismatch(t *testing.T) {
+	img := imageWithPlatform(t, Platform{OS: "linux", Arch: "amd64"})
+	err := verifyImagePlatform(img, Platform{OS: "linux", Arch: "arm64"})
+	if err == nil {
+		t.Fatal("expected platform mismatch error")
+	}
+	if !strings.Contains(err.Error(), "amd64") || !strings.Contains(err.Error(), "arm64") {
+		t.Fatalf("error should name both platforms, got: %v", err)
+	}
+}
+
+func TestVerifyImagePlatformVariantMismatch(t *testing.T) {
+	img := imageWithPlatform(t, Platform{OS: "linux", Arch: "arm", Variant: "v6"})
+	err := verifyImagePlatform(img, Platform{OS: "linux", Arch: "arm", Variant: "v7"})
+	if err == nil {
+		t.Fatal("expected variant mismatch error")
 	}
 }
