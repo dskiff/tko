@@ -277,6 +277,10 @@ func mutateConfig(img v1.Image, spec BuildSpec, metadata BaseImageMetadata) (v1.
 	imgCfg.Container = ""
 	imgCfg.DockerVersion = ""
 
+	imgCfg.OS = spec.InjectLayer.Platform.OS
+	imgCfg.Architecture = spec.InjectLayer.Platform.Arch
+	imgCfg.Variant = spec.InjectLayer.Platform.Variant
+
 	if spec.RunAs != nil {
 		imgCfg.Config.User = *spec.RunAs
 	}

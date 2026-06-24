@@ -195,6 +195,52 @@ func TestValidatePlatformSources(t *testing.T) {
 	}
 }
 
+func TestBuildImageSetsPlatformOnConfig(t *testing.T) {
+	ctx := newTestBuildContext(t)
+	srcDir := createTestSourceDir(t, map[string]string{"mybin": "x"})
+
+	spec := newScratchBuildSpec(srcDir)
+	spec.InjectLayer.Platform = Platform{OS: "linux", Arch: "amd64"}
+
+	img, err := buildImage(ctx, spec)
+	if err != nil {
+		t.Fatalf("buildImage failed: %v", err)
+	}
+	cfg, err := img.ConfigFile()
+	if err != nil {
+		t.Fatalf("ConfigFile failed: %v", err)
+	}
+	if cfg.OS != "linux" {
+		t.Fatalf("expected OS=linux, got %q", cfg.OS)
+	}
+	if cfg.Architecture != "amd64" {
+		t.Fatalf("expected Architecture=amd64, got %q", cfg.Architecture)
+	}
+	if cfg.Variant != "" {
+		t.Fatalf("expected empty Variant, got %q", cfg.Variant)
+	}
+}
+
+func TestBuildImageSetsPlatformVariantOnConfig(t *testing.T) {
+	ctx := newTestBuildContext(t)
+	srcDir := createTestSourceDir(t, map[string]string{"mybin": "x"})
+
+	spec := newScratchBuildSpec(srcDir)
+	spec.InjectLayer.Platform = Platform{OS: "linux", Arch: "arm", Variant: "v7"}
+
+	img, err := buildImage(ctx, spec)
+	if err != nil {
+		t.Fatalf("buildImage failed: %v", err)
+	}
+	cfg, err := img.ConfigFile()
+	if err != nil {
+		t.Fatalf("ConfigFile failed: %v", err)
+	}
+	if cfg.OS != "linux" || cfg.Architecture != "arm" || cfg.Variant != "v7" {
+		t.Fatalf("expected linux/arm/v7, got %s/%s/%s", cfg.OS, cfg.Architecture, cfg.Variant)
+	}
+}
+
 func TestValidatePlatformSourcesAllPresent(t *testing.T) {
 	dir := t.TempDir()
 	for _, arch := range []string{"amd64", "arm64"} {
